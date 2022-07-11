@@ -1,8 +1,12 @@
+import data.entity
+import data.unit
 import pygame
-import random
 
 Color = pygame.Color
 Vec = pygame.Vector2
+
+Entity = data.entity.Entity
+Unit = data.unit.Unit
 
 
 # changable constants
@@ -20,23 +24,6 @@ CLOCK = pygame.time.Clock()
 UNIT_SQUARE = Vec(UNIT_SIZE)
 UNIT_ARRAY_SIZE_RANGE = (range(UNIT_ARRAY_SIZE[0]),
                          range(UNIT_ARRAY_SIZE[1]))
-
-
-# class
-class Unit:
-
-    def __init__(self):
-        self.randomize_color()
-
-    def randomize_color(self) -> None:
-        """randomizes this unit's color"""
-        self.color = Color(random.randrange(0, 256),
-                           random.randrange(0, 256),
-                           random.randrange(0, 256))
-
-    def draw(self, pos: Vec) -> None:
-        """draws this unit to the surface"""
-        pygame.draw.rect(surface, self.color, (pos, UNIT_SQUARE))
 
 
 # function
@@ -127,7 +114,7 @@ while running:
     # draw units
     for y in UNIT_ARRAY_SIZE_RANGE[1]:
         for x in UNIT_ARRAY_SIZE_RANGE[0]:
-            get_unit(x, y).draw(Vec(x, y) * UNIT_SIZE)
+            get_unit(x, y).draw(surface, Vec(x, y) * UNIT_SIZE, UNIT_SQUARE)
 
     # update display
     pygame.display.flip()
