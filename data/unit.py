@@ -14,11 +14,10 @@ class Unit:
 
     def randomize_color(self) -> None:
         """randomizes this unit's color"""
-        self.color = Color(random.randrange(0, 256),
-                           random.randrange(0, 256),
-                           random.randrange(0, 256))
+        self._color = Color(random.randrange(0, 256),
+                            random.randrange(0, 256),
+                            random.randrange(0, 256))
 
-    def draw(self, surface: Surface, pos: Vec, size: Vec) -> None:
+    def draw(self, surface: Surface, pos: Vec, unit_scale: int) -> None:
         """draws this unit to the surface"""
-        global UNIT_SQUARE
-        pygame.draw.rect(surface, self.color, (pos, size))
+        pygame.draw.rect(surface, self._color, (pos, Vec(unit_scale)))
