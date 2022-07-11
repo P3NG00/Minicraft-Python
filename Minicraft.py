@@ -91,8 +91,6 @@ while running:
             # mouse press
             case pygame.MOUSEBUTTONDOWN:
 
-                print(event.button)
-
                 match event.button:
 
                     # mouse press 'left'
@@ -120,6 +118,7 @@ while running:
                     UNIT_SIZE = 0
                 # fix unit square value
                 UNIT_SQUARE = Vec(UNIT_SIZE)
+
     # event handling end
 
     # draw
