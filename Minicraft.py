@@ -12,12 +12,13 @@ Unit = data.unit.Unit
 # changable constants
 TITLE = "Minicraft"
 SURFACE_SIZE = Vec(800, 600)
-FPS = 60
+FPS = 60.0
 COLOR_BG = Color(128, 128, 128)
 COLOR_PLAYER = Color(255, 0, 0)
-UNIT_SIZE = 20
+UNIT_SIZE = 25
 UNIT_SIZE_MIN = 1
-UNIT_ARRAY_SIZE = (15, 10)
+UNIT_ARRAY_SIZE = (32, 24)
+PLAYER_MOVE_SPEED = 3.0
 
 
 # dependable constants
@@ -35,7 +36,7 @@ def get_unit(x: int, y: int) -> Unit:
 
 # runtime variables
 running = True
-player = Entity(COLOR_PLAYER, Vec(0.8, 1.75))
+player = Entity(COLOR_PLAYER, Vec(0.8, 1.75), PLAYER_MOVE_SPEED)
 input_move = Vec(0)
 camera_offset = -SURFACE_SIZE_HALF.copy()
 unit_array = [[Unit() for _ in UNIT_ARRAY_SIZE_RANGE[0]]
@@ -138,7 +139,7 @@ while running:
     # update
 
     # move player
-    player.move(input_move / FPS)
+    player.move(input_move, FPS)
 
 
     # draw
