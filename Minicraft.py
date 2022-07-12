@@ -14,11 +14,14 @@ TITLE = "Minicraft"
 SURFACE_SIZE = Vec(800, 600)
 FPS = 60.0
 COLOR_BG = Color(128, 128, 128)
+COLOR_UNIT_AIR = Color(240, 255, 255)
+COLOR_UNIT_DIRT = Color(96, 48, 0)
 COLOR_PLAYER = Color(255, 0, 0)
 UNIT_SIZE = 25
 UNIT_SIZE_MIN = 1
 UNIT_ARRAY_SIZE = (32, 24)
 PLAYER_MOVE_SPEED = 3.0
+PLAYER_SIZE = Vec(0.75, 1.75)
 
 
 # dependable constants
@@ -26,6 +29,9 @@ CLOCK = pygame.time.Clock()
 SURFACE_SIZE_HALF = SURFACE_SIZE / 2
 UNIT_ARRAY_SIZE_RANGE = (range(UNIT_ARRAY_SIZE[0]),
                          range(UNIT_ARRAY_SIZE[1]))
+
+UNIT_AIR = Unit(COLOR_UNIT_AIR, True)
+UNIT_DIRT = Unit(COLOR_UNIT_DIRT, False)
 
 
 # function
@@ -36,11 +42,15 @@ def get_unit(x: int, y: int) -> Unit:
 
 # runtime variables
 running = True
-player = Entity(COLOR_PLAYER, Vec(0.8, 1.75), PLAYER_MOVE_SPEED)
+player = Entity(COLOR_PLAYER, Vec(0.75, 1.75), PLAYER_MOVE_SPEED)
 input_move = Vec(0)
 camera_offset = -SURFACE_SIZE_HALF.copy()
-unit_array = [[Unit() for _ in UNIT_ARRAY_SIZE_RANGE[0]]
-                      for _ in UNIT_ARRAY_SIZE_RANGE[1]]
+unit_array = []
+for y in UNIT_ARRAY_SIZE_RANGE[1]:
+    _unit_subarray = []
+    for x in UNIT_ARRAY_SIZE_RANGE[0]:
+        _unit_subarray.append(UNIT_DIRT if y > (UNIT_ARRAY_SIZE[1] / 2) else UNIT_AIR)
+    unit_array.append(_unit_subarray)
 
 
 # init
@@ -104,25 +114,6 @@ while running:
                         input_move.y -= 1
                     case pygame.K_d:
                         input_move.x -= 1
-
-            # mouse press
-            case pygame.MOUSEBUTTONDOWN:
-
-                match event.button:
-
-                    # mouse press 'left'
-                    case 1:
-
-                        # find clicked unit
-                        mouse_pos = Vec(pygame.mouse.get_pos())
-                        x = int(mouse_pos.x / UNIT_SIZE)
-                        y = int(mouse_pos.y / UNIT_SIZE)
-                        # if valid unit area randomize color
-                        if x >= 0 and \
-                           y >= 0 and \
-                           x < UNIT_ARRAY_SIZE[0] and \
-                           y < UNIT_ARRAY_SIZE[1]:
-                            get_unit(x, y).randomize_color()
 
             # mouse scrollwheel
             case pygame.MOUSEWHEEL:
