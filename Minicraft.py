@@ -5,6 +5,8 @@ import data.unit
 import pygame
 
 Color = pygame.Color
+Font = pygame.font.Font
+Surface = pygame.Surface
 Vec = pygame.Vector2
 
 Display = data.display.Display
@@ -18,7 +20,8 @@ TITLE = "Minicraft"
 SURFACE_SIZE = Vec(800, 600)
 FPS = 60.0
 COLOR_BG = Color(128, 128, 128)
-COLOR_DEBUG = Color(0, 64, 255)
+COLOR_DEBUG_CENTER = Color(0, 64, 255)
+COLOR_DEBUG_INFO = Color(0, 0, 0)
 COLOR_UNIT_AIR = Color(240, 255, 255)
 COLOR_UNIT_DIRT = Color(96, 48, 0)
 COLOR_PLAYER = Color(255, 0, 0)
@@ -38,6 +41,7 @@ UNIT_DIRT = Unit(COLOR_UNIT_DIRT, False)
 
 # runtime variables
 running = True
+debug = False
 player = Entity(COLOR_PLAYER, Vec(0.75, 1.75), PLAYER_MOVE_SPEED, PLAYER_JUMP_VELOCITY, GRAVITY)
 input_move = Vec(0)
 input_jump = False
@@ -48,6 +52,10 @@ pygame.display.set_caption(TITLE)
 surface = pygame.display.set_mode(SURFACE_SIZE)
 display = Display(surface, UNIT_ARRAY_SIZE, UNIT_SIZE)
 grid = Grid([[UNIT_DIRT if y < (UNIT_ARRAY_SIZE[1] / 2) else UNIT_AIR for _ in range(UNIT_ARRAY_SIZE[0])] for y in range(UNIT_ARRAY_SIZE[1])])
+
+# font
+font_debug = Font("data/font/type_writer.ttf", 16)
+# font_type_w95fa = Font("data/font/W95FA.otf", 24) # TODO utilize
 
 
 # loop
@@ -80,6 +88,12 @@ while running:
 
                         # minimize window
                         pygame.display.iconify()
+
+                    # key press 'f12'
+                    case pygame.K_F12:
+
+                        # toggle debug mode
+                        debug = not debug
 
                     # key press movement
                     case pygame.K_w:
@@ -161,9 +175,19 @@ while running:
     grid.draw(display)
     # draw player
     player.draw(display)
-    # TODO remove below
-    # draw point in center of screen for debugging
-    pygame.draw.circle(surface, COLOR_DEBUG, SURFACE_SIZE / 2, 5)
+    # draw debug
+    if debug:
+        # draw point in center of screen for debugging
+        pygame.draw.circle(surface, COLOR_DEBUG_CENTER, SURFACE_SIZE / 2, 5)
+        # draw debug info
+        _debug_info = [f"x: {player._pos.x:.3f}",
+                       f"y: {player._pos.y:.3f}"]
+        _draw_height = 0
+        for i in range(len(_debug_info)):
+            _text_surface = font_debug.render(_debug_info[i], False, COLOR_DEBUG_INFO)
+            _debug_info[i] = (_text_surface, (0, _draw_height))
+            _draw_height += _text_surface.get_height()
+        surface.blits(_debug_info)
 
 
     # update display
