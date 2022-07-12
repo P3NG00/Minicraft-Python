@@ -1,26 +1,49 @@
 import pygame
+from . import display
+
+Display = display.Display
 
 Color = pygame.Color
-Surface = pygame.Surface
 Vec = pygame.Vector2
 
 
 # class
 class Entity:
 
-    def __init__(self, color: Color, dimensions: Vec, move_speed: float):
+    def __init__(self, color: Color, dimensions: Vec, move_speed: float, jump_velocity: float, gravity: float):
         self._color = color
         self._dims = dimensions
         self._speed = move_speed
+        self._jump_vel = jump_velocity
+        self._gravity = gravity
         self._pos = Vec(0)
+        self._vel = Vec(0)
 
-    def draw(self, surface: Surface, camera_offset: Vec, unit_scale: int):
+    def draw(self, display: Display):
         """uses the current camera offset and unit scale to draw the entity to the surface"""
-        _current_size = self._dims * unit_scale
+        # get current screen size of player
+        _current_size = self._dims * display.unit_scale
+        # find offset to reach top-left corner for draw pos
         _draw_offset = Vec(_current_size.x / 2, _current_size.y)
-        _rel_pos = self._pos * unit_scale
-        _draw_pos = _rel_pos - _draw_offset - camera_offset
-        pygame.draw.rect(surface, self._color, (_draw_pos, _current_size))
+        # get relative screen position
+        _rel_pos = self._pos * display.unit_scale
+        # flip screen y position
+        _rel_pos.y *= -1
+        # find final screen draw position
+        _draw_pos = _rel_pos - _draw_offset - display.camera_offset
+        # draw to surface
+        # TODO refactor in future to use method in display to draw
+        pygame.draw.rect(display.surface, self._color, (_draw_pos, _current_size))
 
-    def move(self, movement: Vec, fps: float):
-        self._pos += (movement / fps) * self._speed
+    def update(self, fps: float):
+        """updates the entity using its values"""
+        self._pos += (self._vel / fps) * self._speed
+        if self._vel.y != 0:
+            self._vel.y -= self._gravity / fps
+        # TODO take into account surrounding tiles
+
+    def handle_input(self, movement: Vec, jump: bool):
+        """uses the given variables to calculate movement"""
+        self._vel.x = movement.x
+        if jump and self._vel.y == 0:
+            self._vel.y = self._jump_vel

@@ -1,19 +1,24 @@
+import data.display
 import data.entity
+import data.grid
 import data.unit
 import pygame
 
 Color = pygame.Color
 Vec = pygame.Vector2
 
+Display = data.display.Display
 Entity = data.entity.Entity
+Grid = data.grid.Grid
 Unit = data.unit.Unit
 
 
-# changable constants
+# constants
 TITLE = "Minicraft"
 SURFACE_SIZE = Vec(800, 600)
 FPS = 60.0
 COLOR_BG = Color(128, 128, 128)
+COLOR_DEBUG = Color(0, 64, 255)
 COLOR_UNIT_AIR = Color(240, 255, 255)
 COLOR_UNIT_DIRT = Color(96, 48, 0)
 COLOR_PLAYER = Color(255, 0, 0)
@@ -21,42 +26,28 @@ UNIT_SIZE = 25
 UNIT_SIZE_MIN = 1
 UNIT_ARRAY_SIZE = (32, 24)
 PLAYER_MOVE_SPEED = 3.0
+PLAYER_JUMP_VELOCITY = 3.5
 PLAYER_SIZE = Vec(0.75, 1.75)
+GRAVITY = 10.0
 
-
-# dependable constants
 CLOCK = pygame.time.Clock()
-SURFACE_SIZE_HALF = SURFACE_SIZE / 2
-UNIT_ARRAY_SIZE_RANGE = (range(UNIT_ARRAY_SIZE[0]),
-                         range(UNIT_ARRAY_SIZE[1]))
 
 UNIT_AIR = Unit(COLOR_UNIT_AIR, True)
 UNIT_DIRT = Unit(COLOR_UNIT_DIRT, False)
 
 
-# function
-def get_unit(x: int, y: int) -> Unit:
-    """returns the unit at the given position"""
-    return unit_array[y][x]
-
-
 # runtime variables
 running = True
-player = Entity(COLOR_PLAYER, Vec(0.75, 1.75), PLAYER_MOVE_SPEED)
+player = Entity(COLOR_PLAYER, Vec(0.75, 1.75), PLAYER_MOVE_SPEED, PLAYER_JUMP_VELOCITY, GRAVITY)
 input_move = Vec(0)
-camera_offset = -SURFACE_SIZE_HALF.copy()
-unit_array = []
-for y in UNIT_ARRAY_SIZE_RANGE[1]:
-    _unit_subarray = []
-    for x in UNIT_ARRAY_SIZE_RANGE[0]:
-        _unit_subarray.append(UNIT_DIRT if y > (UNIT_ARRAY_SIZE[1] / 2) else UNIT_AIR)
-    unit_array.append(_unit_subarray)
-
+input_jump = False
 
 # init
 pygame.init()
 pygame.display.set_caption(TITLE)
 surface = pygame.display.set_mode(SURFACE_SIZE)
+display = Display(surface, UNIT_ARRAY_SIZE, UNIT_SIZE)
+grid = Grid([[UNIT_DIRT if y < (UNIT_ARRAY_SIZE[1] / 2) else UNIT_AIR for _ in range(UNIT_ARRAY_SIZE[0])] for y in range(UNIT_ARRAY_SIZE[1])])
 
 
 # loop
@@ -99,6 +90,8 @@ while running:
                         input_move.y += 1
                     case pygame.K_d:
                         input_move.x += 1
+                    case pygame.K_SPACE:
+                        input_jump = True
 
             # key release
             case pygame.KEYUP:
@@ -114,38 +107,63 @@ while running:
                         input_move.y -= 1
                     case pygame.K_d:
                         input_move.x -= 1
+                    case pygame.K_SPACE:
+                        input_jump = False
+
+            # mouse button press
+            case pygame.MOUSEBUTTONDOWN:
+
+                match event.button:
+
+                    # left mouse button
+                    case 1:
+
+                        # find clicked unit
+                        # TODO account for centered unit size whatever
+                        mouse_pos = Vec(pygame.mouse.get_pos())
+                        x = int(mouse_pos.x / display.unit_scale)
+                        y = int(mouse_pos.y / display.unit_scale)
+                        # if valid unit area
+                        if x >= 0 and \
+                           y >= 0 and \
+                           x < display.unit_array_size[0] and \
+                           y < display.unit_array_size[1]:
+                            # print of selected unit is air
+                            print(grid.get_unit(x, y).is_air)
 
             # mouse scrollwheel
             case pygame.MOUSEWHEEL:
 
                 # adjust size of units
-                UNIT_SIZE += event.y
+                display.unit_scale += event.y
                 # fix negative size
-                if UNIT_SIZE < UNIT_SIZE_MIN:
-                    UNIT_SIZE = UNIT_SIZE_MIN
+                if display.unit_scale < UNIT_SIZE_MIN:
+                    display.unit_scale = UNIT_SIZE_MIN
 
     # event handling end
 
 
     # update
 
-    # move player
-    player.move(input_move, FPS)
+    # update player with input
+    player.handle_input(input_move, input_jump)
+    # update entities
+    player.update(FPS)
+    # update display handler
+    display.update(player._pos)
 
 
     # draw
 
     # fill background
     surface.fill(COLOR_BG)
-    # draw units
-    _start_x = -(UNIT_ARRAY_SIZE[0] * UNIT_SIZE) / 2
-    _start_y = -(UNIT_ARRAY_SIZE[1] * UNIT_SIZE) / 2
-    for y in UNIT_ARRAY_SIZE_RANGE[1]:
-        for x in UNIT_ARRAY_SIZE_RANGE[0]:
-            _draw_pos = Vec(_start_x + (x * UNIT_SIZE),
-                            _start_y + (y * UNIT_SIZE)) - camera_offset
-            get_unit(x, y).draw(surface, _draw_pos, UNIT_SIZE)
-    player.draw(surface, camera_offset, UNIT_SIZE)
+    # draw grid
+    grid.draw(display)
+    # draw player
+    player.draw(display)
+    # TODO remove below
+    # draw point in center of screen for debugging
+    pygame.draw.circle(surface, COLOR_DEBUG, SURFACE_SIZE / 2, 5)
 
 
     # update display
