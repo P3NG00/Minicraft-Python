@@ -17,27 +17,27 @@ Block = data.block.Block
 
 # constants
 TITLE = "Minicraft"
-SURFACE_SIZE = Vec(800, 600)
+SURFACE_SIZE = (800, 600)
 FPS = 60.0
 COLOR_BG = Color(128, 128, 128)
 COLOR_DEBUG_CENTER = Color(0, 64, 255)
 COLOR_DEBUG_INFO = Color(0, 0, 0)
-COLOR_BLOCK_AIR = Color(240, 255, 255)
-COLOR_BLOCK_DIRT = Color(96, 48, 0)
 COLOR_PLAYER = Color(255, 0, 0)
 DEBUG_UI_SPACER = 5
 BLOCK_SCALE = 25
 BLOCK_SCALE_MIN = 1
-WORLD_SIZE = (32, 24)
+WORLD_SIZE = (64, 48)
 PLAYER_MOVE_SPEED = 3.0
 PLAYER_JUMP_VELOCITY = 3.5
 PLAYER_SIZE = Vec(0.75, 1.75)
 GRAVITY = 10.0
-
 CLOCK = pygame.time.Clock()
 
-BLOCK_AIR = Block(COLOR_BLOCK_AIR)
-BLOCK_DIRT = Block(COLOR_BLOCK_DIRT)
+
+# blocks
+BLOCK_AIR = Block("Air", Color(240, 255, 255))
+BLOCK_DIRT = Block("Dirt", Color(96, 48, 0))
+BLOCK_GRASS = Block("Grass", Color(32, 255, 16))
 
 
 # runtime variables
@@ -53,7 +53,18 @@ pygame.init()
 pygame.display.set_caption(TITLE)
 surface = pygame.display.set_mode(SURFACE_SIZE)
 display = Display(surface, WORLD_SIZE, BLOCK_SCALE)
-world = World([[BLOCK_DIRT if y < (WORLD_SIZE[1] / 2) else BLOCK_AIR for _ in range(WORLD_SIZE[0])] for y in range(WORLD_SIZE[1])])
+
+# default world generation
+_blocks = []
+_grass_level = WORLD_SIZE[1] / 2
+for y in range(WORLD_SIZE[1]):
+    if y < _grass_level:
+        _blocks.append([BLOCK_DIRT for _ in range(WORLD_SIZE[0])])
+    elif y == _grass_level:
+        _blocks.append([BLOCK_GRASS for _ in range(WORLD_SIZE[0])])
+    else:
+        _blocks.append([BLOCK_AIR for _ in range(WORLD_SIZE[0])])
+world = World(_blocks)
 
 # font
 font_debug = Font("data/font/type_writer.ttf", 16)
@@ -164,19 +175,28 @@ while running:
     player.update(FPS)
     # update display handler
     display.update(player._pos)
-    # update block mouse is hoerving over
+    # update block mouse is hovering over
     mouse_pos = pygame.mouse.get_pos()
     # find mouse block position
-    mouse_block_x = (mouse_pos[0] / display.block_scale) + player._pos.x
-    mouse_block_y = ((display.surface_size.y - mouse_pos[1] - 1) / display.block_scale) + player._pos.y
-    mouse_block_x_rounded = int(mouse_block_x)
-    mouse_block_y_rounded = int(mouse_block_y)
+    # TODO condense
+    mouse_block_x = mouse_pos[0]
+    mouse_block_x -= display.surface_center.x
+    mouse_block_x += display.world_center[0] * display.block_scale
+    mouse_block_x /= display.block_scale
+    mouse_block_x += player._pos.x
+    # TODO
+    mouse_block_y = display.surface_size.y - mouse_pos[1] - 1
+    mouse_block_y -= display.surface_center.y
+    mouse_block_y += display.world_center[1] * display.block_scale
+    mouse_block_y /= display.block_scale
+    mouse_block_y += player._pos.y
     # if valid location
     if input_mouse_left and \
        mouse_block_x >= 0 and mouse_block_x < display.world_size[0] and \
        mouse_block_y >= 0 and mouse_block_y < display.world_size[1]:
-        # change selected block
-        print(f"is air {mouse_block_x}, {mouse_block_y}: {world.get_block(mouse_block_x_rounded, mouse_block_y_rounded) is BLOCK_AIR}")
+        # TODO remove below and interact with block
+        # print name of selected block
+        print(world.get_block(int(mouse_block_x), int(mouse_block_y)).name)
 
 
     # draw
@@ -190,7 +210,7 @@ while running:
     # draw debug
     if debug:
         # draw point in center of screen for debugging
-        pygame.draw.circle(surface, COLOR_DEBUG_CENTER, SURFACE_SIZE / 2, 5)
+        pygame.draw.circle(surface, COLOR_DEBUG_CENTER, display.surface_size / 2, 5)
         # draw debug info
         _debug_info = [f"surface_size: {display.surface_size.x}x{display.surface_size.y}",
                        f"fps: {CLOCK.get_fps():.3f}",
@@ -199,8 +219,8 @@ while running:
                        f"block_scale: {display.block_scale}",
                        f"mouse_x: {mouse_pos[0]}",
                        f"mouse_y: {mouse_pos[1]}",
-                       f"mouse_block_x: {mouse_block_x:.3f} ({mouse_block_x_rounded})",
-                       f"mouse_block_y: {mouse_block_y:.3f} ({mouse_block_y_rounded})",
+                       f"mouse_block_x: {mouse_block_x:.3f} ({int(mouse_block_x)})",
+                       f"mouse_block_y: {mouse_block_y:.3f} ({int(mouse_block_y)})",
                        f"camera_offset_x: {display.camera_offset.x:.3f}",
                        f"camera_offset_y: {display.camera_offset.y:.3f}"]
         _draw_height = DEBUG_UI_SPACER
