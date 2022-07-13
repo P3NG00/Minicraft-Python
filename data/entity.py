@@ -31,8 +31,10 @@ class Entity:
         _rel_pos.y *= -1
         # find final screen draw position
         _draw_pos = _rel_pos - _draw_offset - display.camera_offset
+        # round draw position
+        _draw_pos.x = int(_draw_pos.x)
+        _draw_pos.y = int(_draw_pos.y)
         # draw to surface
-        # TODO refactor in future to use method in display to draw
         pygame.draw.rect(display.surface, self._color, (_draw_pos, _current_size))
 
     def update(self, fps: float):
@@ -40,14 +42,17 @@ class Entity:
         # add movement this frame
         self._pos += (self._vel / fps) * self._speed
         # TODO change below to check if not on ground
-        if self._vel.y != 0:
-            self._vel.y -= self._gravity / fps
+        # if self._vel.y != 0:
+        #     self._vel.y -= self._gravity / fps
         # TODO take into account surrounding tiles
 
     def handle_input(self, movement: Vec, jump: bool):
         """uses the given variables to calculate movement"""
         # set horizontal movement
+        # TODO change back to only horizontal movement
+        # self._vel.x = movement.x
         self._vel.x = movement.x
+        self._vel.y = -movement.y
         # check jump
         if jump and self._vel.y == 0:
             self._vel.y = self._jump_vel

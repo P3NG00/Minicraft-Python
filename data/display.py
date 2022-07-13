@@ -18,6 +18,6 @@ class Display:
     def update(self, player_pos: Vec):
         """updates camera offset to center the player in the display"""
         _camera_offset = -self.surface_center
-        _camera_offset.x += player_pos.x * self.block_scale
-        _camera_offset.y -= player_pos.y * self.block_scale
+        _camera_offset.x = int(_camera_offset.x + (player_pos.x * self.block_scale))
+        _camera_offset.y = int(_camera_offset.y - (player_pos.y * self.block_scale))
         self.camera_offset = _camera_offset

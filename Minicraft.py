@@ -164,20 +164,19 @@ while running:
     player.update(FPS)
     # update display handler
     display.update(player._pos)
-
-    if input_mouse_left:
-        # find clicked block
-        # TODO account for camera offset and flipped y
-        _mouse_pos = Vec(pygame.mouse.get_pos())
-        x = int(_mouse_pos.x / display.block_scale)
-        y = int((display.surface_size.y - _mouse_pos.y) / display.block_scale)
-        # if valid location
-        if x >= 0 and \
-           y >= 0 and \
-           x < display.world_size[0] and \
-           y < display.world_size[1]:
-            # print of selected block is air
-            print(f"is air {x}, {y}: {world.get_block(x, y) is BLOCK_AIR}")
+    # update block mouse is hoerving over
+    mouse_pos = pygame.mouse.get_pos()
+    # find mouse block position
+    mouse_block_x = (mouse_pos[0] / display.block_scale) + player._pos.x
+    mouse_block_y = ((display.surface_size.y - mouse_pos[1] - 1) / display.block_scale) + player._pos.y
+    mouse_block_x_rounded = int(mouse_block_x)
+    mouse_block_y_rounded = int(mouse_block_y)
+    # if valid location
+    if input_mouse_left and \
+       mouse_block_x >= 0 and mouse_block_x < display.world_size[0] and \
+       mouse_block_y >= 0 and mouse_block_y < display.world_size[1]:
+        # change selected block
+        print(f"is air {mouse_block_x}, {mouse_block_y}: {world.get_block(mouse_block_x_rounded, mouse_block_y_rounded) is BLOCK_AIR}")
 
 
     # draw
@@ -193,9 +192,17 @@ while running:
         # draw point in center of screen for debugging
         pygame.draw.circle(surface, COLOR_DEBUG_CENTER, SURFACE_SIZE / 2, 5)
         # draw debug info
-        _debug_info = [f"fps: {CLOCK.get_fps():.3f}",
+        _debug_info = [f"surface_size: {display.surface_size.x}x{display.surface_size.y}",
+                       f"fps: {CLOCK.get_fps():.3f}",
                        f"x: {player._pos.x:.3f}",
-                       f"y: {player._pos.y:.3f}"]
+                       f"y: {player._pos.y:.3f}",
+                       f"block_scale: {display.block_scale}",
+                       f"mouse_x: {mouse_pos[0]}",
+                       f"mouse_y: {mouse_pos[1]}",
+                       f"mouse_block_x: {mouse_block_x:.3f} ({mouse_block_x_rounded})",
+                       f"mouse_block_y: {mouse_block_y:.3f} ({mouse_block_y_rounded})",
+                       f"camera_offset_x: {display.camera_offset.x:.3f}",
+                       f"camera_offset_y: {display.camera_offset.y:.3f}"]
         _draw_height = DEBUG_UI_SPACER
         for i in range(len(_debug_info)):
             _text_surface = font_debug.render(_debug_info[i], False, COLOR_DEBUG_INFO)
