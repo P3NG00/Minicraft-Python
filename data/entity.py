@@ -49,10 +49,7 @@ class Entity:
     def handle_input(self, movement: Vec, jump: bool):
         """uses the given variables to calculate movement"""
         # set horizontal movement
-        # TODO change back to only horizontal movement
-        # self._vel.x = movement.x
         self._vel.x = movement.x
-        self._vel.y = -movement.y
         # check jump
         if jump and self._vel.y == 0:
             self._vel.y = self._jump_vel
