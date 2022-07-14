@@ -47,6 +47,7 @@ player = Entity(COLOR_PLAYER, Vec(0.75, 1.75), PLAYER_MOVE_SPEED, PLAYER_JUMP_VE
 input_move = Vec(0)
 input_jump = False
 input_mouse_left = False
+input_mouse_left_last = False
 
 # init
 pygame.init()
@@ -179,34 +180,25 @@ while running:
     # update display handler
     display.update(player._pos)
     # update block mouse is hovering over
-    mouse_pos = pygame.mouse.get_pos()
-    # find mouse block position
-    # TODO condense
-    mouse_block_x = mouse_pos[0]
-    mouse_block_x -= display.surface_center.x
-    mouse_block_x += display.world_center[0] * display.block_scale
-    mouse_block_x /= display.block_scale
-    mouse_block_x += player._pos.x
-    # TODO
-    mouse_block_y = display.surface_size.y - mouse_pos[1] - 1
-    mouse_block_y -= display.surface_center.y
-    mouse_block_y += display.world_center[1] * display.block_scale
-    mouse_block_y /= display.block_scale
-    mouse_block_y += player._pos.y
+    mouse_pos = Vec(pygame.mouse.get_pos())
+    mouse_pos.y = display.surface_size.y - mouse_pos.y - 1
+    mouse_pos = ((mouse_pos - display.surface_center + (display.world_center * display.block_scale)) / display.block_scale) + player._pos
     # if valid location
-    if input_mouse_left and \
-       mouse_block_x >= 0 and mouse_block_x < display.world_size[0] and \
-       mouse_block_y >= 0 and mouse_block_y < display.world_size[1]:
+    if input_mouse_left and not input_mouse_left_last and \
+       mouse_pos.x >= 0 and mouse_pos.x < display.world_size[0] and \
+       mouse_pos.y >= 0 and mouse_pos.y < display.world_size[1]:
         # TODO remove below and interact with block
         # print name of selected block
-        print(world.get_block(int(mouse_block_x), int(mouse_block_y)).name)
+        print(world.get_block(int(mouse_pos.x), int(mouse_pos.y)).name)
+    # update last input
+    input_mouse_left_last = input_mouse_left
 
 
     # draw
 
     # fill background
     surface.fill(COLOR_BG)
-    # draw worldf
+    # draw world
     world.draw(display)
     # draw player
     player.draw(display)
@@ -222,8 +214,8 @@ while running:
                        f"block_scale: {display.block_scale}",
                        f"mouse_x: {mouse_pos[0]}",
                        f"mouse_y: {mouse_pos[1]}",
-                       f"mouse_block_x: {mouse_block_x:.3f} ({int(mouse_block_x)})",
-                       f"mouse_block_y: {mouse_block_y:.3f} ({int(mouse_block_y)})",
+                       f"mouse_block_x: {mouse_pos.x:.3f} ({int(mouse_pos.x)})",
+                       f"mouse_block_y: {mouse_pos.y:.3f} ({int(mouse_pos.y)})",
                        f"camera_offset_x: {display.camera_offset.x:.3f}",
                        f"camera_offset_y: {display.camera_offset.y:.3f}"]
         _draw_height = DEBUG_UI_SPACER
