@@ -24,6 +24,7 @@ COLOR_DEBUG_CENTER = Color(0, 64, 255)
 COLOR_DEBUG_INFO = Color(0, 0, 0)
 COLOR_PLAYER = Color(255, 0, 0)
 DEBUG_UI_SPACER = 5
+FONT_SIZE = 16
 BLOCK_SCALE = 25
 BLOCK_SCALE_MIN = 1
 WORLD_SIZE = (64, 48)
@@ -72,8 +73,11 @@ world = World(_blocks)
 del _grass_level, _layer_dirt, _layer_grass, _layer_air
 
 # font
-font_debug = Font("data/font/type_writer.ttf", 16)
-# font_type_w95fa = Font("data/font/W95FA.otf", 24) # TODO utilize
+font = Font("data/font/type_writer.ttf", FONT_SIZE)
+
+def create_text_surface(text: str, color: Color) -> Surface:
+    """returns a surface using the text and color"""
+    return font.render(text, False, color)
 
 
 # loop
@@ -219,7 +223,7 @@ while running:
                        f"camera_offset_y: {display.camera_offset.y:.3f}"]
         _draw_height = DEBUG_UI_SPACER
         for i in range(len(_debug_info)):
-            _text_surface = font_debug.render(_debug_info[i], False, COLOR_DEBUG_INFO)
+            _text_surface = create_text_surface(_debug_info[i], COLOR_DEBUG_INFO)
             _debug_info[i] = (_text_surface, (DEBUG_UI_SPACER, _draw_height))
             _draw_height += _text_surface.get_height() + DEBUG_UI_SPACER
         surface.blits(_debug_info)
