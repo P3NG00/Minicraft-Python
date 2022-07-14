@@ -57,7 +57,7 @@ display = Display(surface, WORLD_SIZE, BLOCK_SCALE)
 
 # default world generation
 _blocks = []
-_grass_level = WORLD_SIZE[1] / 2
+_grass_level = (WORLD_SIZE[1] / 2) - 1
 _layer_dirt = [BLOCK_DIRT for _ in range(WORLD_SIZE[0])]
 _layer_grass = [BLOCK_GRASS for _ in range(WORLD_SIZE[0])]
 _layer_air = [BLOCK_AIR for _ in range(WORLD_SIZE[0])]
@@ -69,6 +69,7 @@ for y in range(WORLD_SIZE[1]):
     else:
         _blocks.append(_layer_air)
 world = World(_blocks)
+del _grass_level, _layer_dirt, _layer_grass, _layer_air
 
 # font
 font_debug = Font("data/font/type_writer.ttf", 16)
