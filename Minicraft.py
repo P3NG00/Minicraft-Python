@@ -213,10 +213,8 @@ while running:
                        f"x: {player._pos.x:.3f}",
                        f"y: {player._pos.y:.3f}",
                        f"block_scale: {display.block_scale}",
-                       f"mouse_x: {mouse_pos[0]}",
-                       f"mouse_y: {mouse_pos[1]}",
-                       f"mouse_block_x: {mouse_pos.x:.3f} ({int(mouse_pos.x)})",
-                       f"mouse_block_y: {mouse_pos.y:.3f} ({int(mouse_pos.y)})",
+                       f"mouse_x: {mouse_pos.x:.3f} ({int(mouse_pos.x)})",
+                       f"mouse_y: {mouse_pos.y:.3f} ({int(mouse_pos.y)}",
                        f"camera_offset_x: {display.camera_offset.x:.3f}",
                        f"camera_offset_y: {display.camera_offset.y:.3f}"]
         _draw_height = DEBUG_UI_SPACER
