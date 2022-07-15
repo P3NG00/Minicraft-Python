@@ -36,7 +36,7 @@ CLOCK = pygame.time.Clock()
 
 
 # blocks
-BLOCK_AIR = Block("Air", Color(240, 255, 255))
+BLOCK_AIR = Block("Air", Color(240, 255, 255), True)
 BLOCK_DIRT = Block("Dirt", Color(96, 48, 0))
 BLOCK_GRASS = Block("Grass", Color(32, 255, 16))
 
@@ -59,18 +59,18 @@ display = Display(surface, WORLD_SIZE, BLOCK_SCALE)
 # default world generation
 _blocks = []
 _grass_level = (WORLD_SIZE[1] / 2) - 1
-_layer_dirt = [BLOCK_DIRT for _ in range(WORLD_SIZE[0])]
-_layer_grass = [BLOCK_GRASS for _ in range(WORLD_SIZE[0])]
-_layer_air = [BLOCK_AIR for _ in range(WORLD_SIZE[0])]
 for y in range(WORLD_SIZE[1]):
-    if y < _grass_level:
-        _blocks.append(_layer_dirt)
-    elif y == _grass_level:
-        _blocks.append(_layer_grass)
-    else:
-        _blocks.append(_layer_air)
+    _block_layer = []
+    for x in range(WORLD_SIZE[0]):
+        if y > _grass_level:
+            _block_layer.append(BLOCK_AIR)
+        elif y == _grass_level:
+            _block_layer.append(BLOCK_GRASS)
+        else:
+            _block_layer.append(BLOCK_DIRT)
+    _blocks.append(_block_layer)
 world = World(_blocks)
-del _grass_level, _layer_dirt, _layer_grass, _layer_air
+del _blocks, _grass_level, _block_layer, y, x
 
 # font
 font = Font("data/font/type_writer.ttf", FONT_SIZE)
@@ -189,12 +189,12 @@ while running:
     mouse_pos.y = display.surface_size.y - mouse_pos.y - 1
     mouse_pos = ((mouse_pos - display.surface_center + (display.world_center * display.block_scale)) / display.block_scale) + player._pos
     # if valid location
-    if input_mouse_left and not input_mouse_left_last and \
+    if input_mouse_left and \
        mouse_pos.x >= 0 and mouse_pos.x < display.world_size[0] and \
        mouse_pos.y >= 0 and mouse_pos.y < display.world_size[1]:
         # TODO remove below and interact with block
-        # print name of selected block
-        print(world.get_block(int(mouse_pos.x), int(mouse_pos.y)).name)
+        # replace block with dirt
+        world.set_block(int(mouse_pos.x), int(mouse_pos.y), BLOCK_DIRT)
     # update last input
     input_mouse_left_last = input_mouse_left
 
@@ -227,6 +227,8 @@ while running:
             _debug_info[i] = (_text_surface, (DEBUG_UI_SPACER, _draw_height))
             _draw_height += _text_surface.get_height() + DEBUG_UI_SPACER
         surface.blits(_debug_info)
+        # delete variables when done
+        del _debug_info, _draw_height, _text_surface, i
 
 
     # update display
