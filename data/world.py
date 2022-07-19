@@ -27,6 +27,6 @@ class World:
         _draw_scale = Vec(display.block_scale - 1 if display.show_grid else display.block_scale)
         for y in range(display.world_size[1]):
             for x in range(display.world_size[0]):
-                _draw_pos = Vec(x * display.block_scale,
-                               (- y - 1) * display.block_scale) - display.camera_offset
+                _draw_pos = -display.camera_offset + Vec(x * display.block_scale,
+                                                  (-y - 1) * display.block_scale)
                 pygame.draw.rect(display.surface, self.get_block(x, y).color, (_draw_pos, _draw_scale))

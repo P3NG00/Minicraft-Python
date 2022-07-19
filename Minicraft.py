@@ -215,7 +215,7 @@ while running:
     player.update(world, FPS)
     # update display handler
     display.update(player._pos)
-    # update block mouse is hovering over
+    # get block position from mouse
     _mouse_pos = Vec(pygame.mouse.get_pos())
     _mouse_pos.y = display.surface_size.y - _mouse_pos.y - 1
     _mouse_pos_block = ((_mouse_pos - display.surface_center) / display.block_scale) + player._pos

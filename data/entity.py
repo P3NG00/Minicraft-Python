@@ -47,9 +47,7 @@ class Entity:
         if not self._grounded:
             self._vel.y -= self._gravity / fps
         self._pos += (self._vel / fps) * self._speed
-        _pos = (int(self._pos.x), int(self._pos.y))
-        _block = world.get_block(_pos[0], _pos[1])
-        if not _block.is_air:
+        if not world.get_block(int(self._pos.x), int(self._pos.y)).is_air:
             self._pos.y = math.ceil(self._pos.y)
             self._vel.y = 0
             self._grounded = True
