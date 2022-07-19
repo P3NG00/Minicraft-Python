@@ -228,14 +228,7 @@ while running:
                        f"block_scale: {display.block_scale}",
                        f"mouse_x: {_mouse_pos_block.x:.3f} ({int(_mouse_pos_block.x)})",
                        f"mouse_y: {_mouse_pos_block.y:.3f} ({int(_mouse_pos_block.y)})"]
-        _draw_height = DEBUG_UI_SPACER
-        for i in range(len(_debug_info)):
-            _text_surface = create_text_surface(_debug_info[i], COLOR_DEBUG_INFO)
-            _debug_info[i] = (_text_surface, (DEBUG_UI_SPACER, _draw_height))
-            _draw_height += _text_surface.get_height() + DEBUG_UI_SPACER
-        surface.blits(_debug_info)
-        # delete variables when done
-        del _debug_info, _draw_height, _text_surface, i
+        surface.blits([(create_text_surface(_debug_info[i], COLOR_DEBUG_INFO), (DEBUG_UI_SPACER, ((FONT_SIZE + DEBUG_UI_SPACER) * i) + DEBUG_UI_SPACER)) for i in range(len(_debug_info))])
 
 
     # update display
