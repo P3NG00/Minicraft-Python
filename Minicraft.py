@@ -21,9 +21,9 @@ SURFACE_SIZE = (800, 600)
 FPS = 60.0
 COLOR_BG = Color(128, 128, 128)
 COLOR_DEBUG_CENTER = Color(0, 64, 255)
-COLOR_DEBUG_INFO = Color(0, 0, 0)
+COLOR_UI_INFO = Color(0, 0, 0)
 COLOR_PLAYER = Color(255, 0, 0)
-DEBUG_UI_SPACER = 5
+UI_SPACER = 5
 FONT_SIZE = 16
 BLOCK_SCALE = 25
 BLOCK_SCALE_MIN = 1
@@ -48,7 +48,10 @@ player = Entity(COLOR_PLAYER, Vec(0.75, 1.75), PLAYER_MOVE_SPEED, PLAYER_JUMP_VE
 input_move = Vec(0)
 input_jump = False
 input_mouse_left = False
+input_mouse_right = False
 input_mouse_left_last = False
+input_mouse_right_last = False
+current_block = BLOCK_DIRT
 
 # init
 pygame.init()
@@ -124,6 +127,12 @@ while running:
                         # toggle grid mode
                         display.show_grid = not display.show_grid
 
+                    # key press block selection
+                    case pygame.K_1:
+                        current_block = BLOCK_DIRT
+                    case pygame.K_2:
+                        current_block = BLOCK_GRASS
+
                     # key press movement
                     case pygame.K_w:
                         input_move.y -= 1
@@ -158,18 +167,26 @@ while running:
 
                 match event.button:
 
-                    # left mouse button
+                    # mouse button left
                     case 1:
                         input_mouse_left = True
+
+                    # mouse button right
+                    case 3:
+                        input_mouse_right = True
 
             # mouse button release
             case pygame.MOUSEBUTTONUP:
 
                 match event.button:
 
-                    # left mouse button
+                    # mouse button left
                     case 1:
                         input_mouse_left = False
+
+                    # mouse button right
+                    case 3:
+                        input_mouse_right = False
 
             # mouse scrollwheel
             case pygame.MOUSEWHEEL:
@@ -195,15 +212,19 @@ while running:
     _mouse_pos = Vec(pygame.mouse.get_pos())
     _mouse_pos.y = display.surface_size.y - _mouse_pos.y - 1
     _mouse_pos_block = ((_mouse_pos - display.surface_center) / display.block_scale) + player._pos
+    _mouse_pos_block_rounded = (int(_mouse_pos_block.x), int(_mouse_pos_block.y))
     # if valid location
-    if input_mouse_left and \
-       _mouse_pos_block.x >= 0 and _mouse_pos_block.x < display.world_size[0] and \
+    if _mouse_pos_block.x >= 0 and _mouse_pos_block.x < display.world_size[0] and \
        _mouse_pos_block.y >= 0 and _mouse_pos_block.y < display.world_size[1]:
-        # TODO remove below and interact with block
-        # replace block with dirt
-        world.set_block(int(_mouse_pos_block.x), int(_mouse_pos_block.y), BLOCK_DIRT)
+        if input_mouse_left and not input_mouse_left_last:
+            # replace block with air
+            world.set_block(_mouse_pos_block_rounded[0], _mouse_pos_block_rounded[1], BLOCK_AIR)
+        elif input_mouse_right and not input_mouse_right_last:
+            # replace block with current block
+            world.set_block(_mouse_pos_block_rounded[0], _mouse_pos_block_rounded[1], current_block)
     # update last input
     input_mouse_left_last = input_mouse_left
+    input_mouse_right_last = input_mouse_right
 
 
     # draw
@@ -214,6 +235,8 @@ while running:
     world.draw(display)
     # draw player
     player.draw(display)
+    # draw current selected block name
+    surface.blit(create_text_surface(f"block: {current_block.name}", COLOR_UI_INFO), (UI_SPACER, display.surface_size.y - FONT_SIZE - UI_SPACER))
     # draw debug
     if debug:
         # draw point in center of screen for debugging
@@ -226,9 +249,9 @@ while running:
                        f"x: {player._pos.x:.3f}",
                        f"y: {player._pos.y:.3f}",
                        f"block_scale: {display.block_scale}",
-                       f"mouse_x: {_mouse_pos_block.x:.3f} ({int(_mouse_pos_block.x)})",
-                       f"mouse_y: {_mouse_pos_block.y:.3f} ({int(_mouse_pos_block.y)})"]
-        surface.blits([(create_text_surface(_debug_info[i], COLOR_DEBUG_INFO), (DEBUG_UI_SPACER, ((FONT_SIZE + DEBUG_UI_SPACER) * i) + DEBUG_UI_SPACER)) for i in range(len(_debug_info))])
+                       f"mouse_x: {_mouse_pos_block.x:.3f} ({_mouse_pos_block_rounded[0]})",
+                       f"mouse_y: {_mouse_pos_block.y:.3f} ({_mouse_pos_block_rounded[1]})"]
+        surface.blits([(create_text_surface(_debug_info[i], COLOR_UI_INFO), (UI_SPACER, ((FONT_SIZE + UI_SPACER) * i) + UI_SPACER)) for i in range(len(_debug_info))])
 
 
     # update display
