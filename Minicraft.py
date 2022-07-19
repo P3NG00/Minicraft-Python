@@ -21,7 +21,8 @@ SURFACE_SIZE = (800, 600)
 FPS = 60.0
 COLOR_BG = Color(128, 128, 128)
 COLOR_DEBUG_CENTER = Color(0, 64, 255)
-COLOR_UI_INFO = Color(0, 0, 0)
+COLOR_FONT_DEBUG = Color(0, 0, 0)
+COLOR_FONT_UI = Color(255, 255, 255)
 COLOR_PLAYER = Color(255, 0, 0)
 UI_SPACER = 5
 FONT_SIZE = 16
@@ -56,7 +57,7 @@ current_block = BLOCK_DIRT
 # init
 pygame.init()
 pygame.display.set_caption(TITLE)
-surface = pygame.display.set_mode(SURFACE_SIZE)
+surface = pygame.display.set_mode(SURFACE_SIZE, pygame.RESIZABLE)
 display = Display(surface, WORLD_SIZE, BLOCK_SCALE)
 player._pos = display.world_center.copy()
 
@@ -197,6 +198,12 @@ while running:
                 if display.block_scale < BLOCK_SCALE_MIN:
                     display.block_scale = BLOCK_SCALE_MIN
 
+            # resize window
+            case pygame.VIDEORESIZE:
+
+                # update display info
+                display.update_surface_size(Vec(event.w, event.h))
+
     # event handling end
 
 
@@ -238,7 +245,7 @@ while running:
     # draw player
     player.draw(display)
     # draw current selected block name
-    surface.blit(create_text_surface(f"block: {current_block.name}", COLOR_UI_INFO), (UI_SPACER, display.surface_size.y - FONT_SIZE - UI_SPACER))
+    surface.blit(create_text_surface(f"block: {current_block.name}", COLOR_FONT_UI), (UI_SPACER, display.surface_size.y - FONT_SIZE - UI_SPACER))
     # draw debug
     if debug:
         # draw point in center of screen for debugging
@@ -254,7 +261,7 @@ while running:
                        f"mouse_x: {_mouse_pos_block.x:.3f} ({_mouse_pos_block_rounded[0]})",
                        f"mouse_y: {_mouse_pos_block.y:.3f} ({_mouse_pos_block_rounded[1]})",
                        f"player_grounded: {player._grounded}"]
-        surface.blits([(create_text_surface(_debug_info[i], COLOR_UI_INFO), (UI_SPACER, ((FONT_SIZE + UI_SPACER) * i) + UI_SPACER)) for i in range(len(_debug_info))])
+        surface.blits([(create_text_surface(_debug_info[i], COLOR_FONT_DEBUG), (UI_SPACER, ((FONT_SIZE + UI_SPACER) * i) + UI_SPACER)) for i in range(len(_debug_info))])
 
 
     # update display

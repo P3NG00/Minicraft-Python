@@ -36,8 +36,8 @@ class Entity:
         # find final screen draw position
         _draw_pos = _rel_pos - _draw_offset - display.camera_offset
         # round draw position
-        _draw_pos.x = int(_draw_pos.x)
-        _draw_pos.y = int(_draw_pos.y)
+        _draw_pos.x = round(_draw_pos.x)
+        _draw_pos.y = round(_draw_pos.y)
         # draw to surface
         pygame.draw.rect(display.surface, self._color, (_draw_pos, _current_size))
 
