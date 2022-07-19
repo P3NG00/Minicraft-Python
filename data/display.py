@@ -15,6 +15,7 @@ class Display:
         self.world_size = world_size
         self.world_center = Vec(self.world_size) / 2
         self.block_scale = block_scale
+        self.show_grid = False
 
     def update(self, player_pos: Vec):
         """updates camera offset to center the player in the display"""

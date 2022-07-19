@@ -24,10 +24,9 @@ class World:
 
     def draw(self, display: Display):
         """draws all world blocks to the display surface"""
-        _start_x = -(display.world_size[0] * display.block_scale) / 2
-        _start_y = ((display.world_size[1] * display.block_scale) / 2) - display.block_scale
+        _draw_scale = Vec(display.block_scale - 1 if display.show_grid else display.block_scale)
         for y in range(display.world_size[1]):
             for x in range(display.world_size[0]):
-                _draw_pos = Vec(_start_x + (x * display.block_scale),
-                                _start_y - (y * display.block_scale)) - display.camera_offset
-                pygame.draw.rect(display.surface, self.get_block(x, y).color, (_draw_pos, Vec(display.block_scale)))
+                _draw_pos = Vec(x * display.block_scale,
+                               (- y - 1) * display.block_scale) - display.camera_offset
+                pygame.draw.rect(display.surface, self.get_block(x, y).color, (_draw_pos, _draw_scale))

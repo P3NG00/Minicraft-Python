@@ -55,6 +55,7 @@ pygame.init()
 pygame.display.set_caption(TITLE)
 surface = pygame.display.set_mode(SURFACE_SIZE)
 display = Display(surface, WORLD_SIZE, BLOCK_SCALE)
+player._pos = display.world_center.copy()
 
 # default world generation
 _blocks = []
@@ -116,6 +117,12 @@ while running:
 
                         # toggle debug mode
                         debug = not debug
+
+                    # key press 'tab'
+                    case pygame.K_TAB:
+
+                        # toggle grid mode
+                        display.show_grid = not display.show_grid
 
                     # key press movement
                     case pygame.K_w:
@@ -185,16 +192,16 @@ while running:
     # update display handler
     display.update(player._pos)
     # update block mouse is hovering over
-    mouse_pos = Vec(pygame.mouse.get_pos())
-    mouse_pos.y = display.surface_size.y - mouse_pos.y - 1
-    mouse_pos = ((mouse_pos - display.surface_center + (display.world_center * display.block_scale)) / display.block_scale) + player._pos
+    _mouse_pos = Vec(pygame.mouse.get_pos())
+    _mouse_pos.y = display.surface_size.y - _mouse_pos.y - 1
+    _mouse_pos_block = ((_mouse_pos - display.surface_center) / display.block_scale) + player._pos
     # if valid location
     if input_mouse_left and \
-       mouse_pos.x >= 0 and mouse_pos.x < display.world_size[0] and \
-       mouse_pos.y >= 0 and mouse_pos.y < display.world_size[1]:
+       _mouse_pos_block.x >= 0 and _mouse_pos_block.x < display.world_size[0] and \
+       _mouse_pos_block.y >= 0 and _mouse_pos_block.y < display.world_size[1]:
         # TODO remove below and interact with block
         # replace block with dirt
-        world.set_block(int(mouse_pos.x), int(mouse_pos.y), BLOCK_DIRT)
+        world.set_block(int(_mouse_pos_block.x), int(_mouse_pos_block.y), BLOCK_DIRT)
     # update last input
     input_mouse_left_last = input_mouse_left
 
@@ -213,14 +220,14 @@ while running:
         pygame.draw.circle(surface, COLOR_DEBUG_CENTER, display.surface_size / 2, 5)
         # draw debug info
         _debug_info = [f"surface_size: {display.surface_size.x}x{display.surface_size.y}",
+                       f"world_size: {display.world_size[0]}x{display.world_size[1]}",
+                       f"show_grid: {display.show_grid}",
                        f"fps: {CLOCK.get_fps():.3f}",
                        f"x: {player._pos.x:.3f}",
                        f"y: {player._pos.y:.3f}",
                        f"block_scale: {display.block_scale}",
-                       f"mouse_x: {mouse_pos.x:.3f} ({int(mouse_pos.x)})",
-                       f"mouse_y: {mouse_pos.y:.3f} ({int(mouse_pos.y)}",
-                       f"camera_offset_x: {display.camera_offset.x:.3f}",
-                       f"camera_offset_y: {display.camera_offset.y:.3f}"]
+                       f"mouse_x: {_mouse_pos_block.x:.3f} ({int(_mouse_pos_block.x)})",
+                       f"mouse_y: {_mouse_pos_block.y:.3f} ({int(_mouse_pos_block.y)})"]
         _draw_height = DEBUG_UI_SPACER
         for i in range(len(_debug_info)):
             _text_surface = create_text_surface(_debug_info[i], COLOR_DEBUG_INFO)
