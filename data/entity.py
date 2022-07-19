@@ -13,12 +13,11 @@ Vec = pygame.Vector2
 # class
 class Entity:
 
-    def __init__(self, color: Color, dimensions: Vec, move_speed: float, jump_velocity: float, gravity: float):
+    def __init__(self, color: Color, dimensions: Vec, move_speed: float, jump_velocity: float):
         self._color = color
         self._dims = dimensions
         self._speed = move_speed
         self._jump_vel = jump_velocity
-        self._gravity = gravity
         self._pos = Vec(0)
         self._vel = Vec(0)
         self._grounded = False
@@ -45,7 +44,7 @@ class Entity:
         """updates the entity"""
         # add movement this frame
         if not self._grounded:
-            self._vel.y -= self._gravity / fps
+            self._vel.y -= world.gravity / fps
         self._pos += (self._vel / fps) * self._speed
         if not world.get_block(int(self._pos.x), int(self._pos.y)).is_air:
             self._pos.y = math.ceil(self._pos.y)

@@ -11,8 +11,9 @@ Vec = pygame.Vector2
 class World:
     """holds block information"""
 
-    def __init__(self, block_grid: list[list[Block]]):
+    def __init__(self, block_grid: list[list[Block]], gravity: float):
         self.block_grid = block_grid
+        self.gravity = gravity
 
     def get_block(self, x: int, y: int) -> Block:
         """returns the block at the specified position"""

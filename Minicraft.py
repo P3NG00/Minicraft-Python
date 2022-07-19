@@ -45,7 +45,7 @@ BLOCK_GRASS = Block("Grass", Color(32, 255, 16))
 # runtime variables
 running = True
 debug = False
-player = Entity(COLOR_PLAYER, Vec(0.75, 1.75), PLAYER_MOVE_SPEED, PLAYER_JUMP_VELOCITY, GRAVITY)
+player = Entity(COLOR_PLAYER, Vec(0.75, 1.75), PLAYER_MOVE_SPEED, PLAYER_JUMP_VELOCITY)
 input_move = Vec(0)
 input_jump = False
 input_mouse_left = False
@@ -74,7 +74,7 @@ for y in range(WORLD_SIZE[1]):
         else:
             _block_layer.append(BLOCK_DIRT)
     _blocks.append(_block_layer)
-world = World(_blocks)
+world = World(_blocks, GRAVITY)
 del _blocks, _grass_level, _block_layer, y, x
 
 # font
