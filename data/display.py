@@ -15,7 +15,7 @@ class Display:
         self.block_scale = block_scale
         self.show_grid = False
 
-    def update_surface_size(self, surface_size: Vec): # TODO add type specifier
+    def update_surface_size(self, surface_size: Vec):
         self.surface_size = surface_size
         self.surface_center = self.surface_size / 2
         self.camera_offset = -self.surface_center
