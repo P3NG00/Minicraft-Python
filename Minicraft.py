@@ -205,7 +205,7 @@ while running:
     # update player with input
     player.handle_input(input_move, input_jump)
     # update entities
-    player.update(FPS)
+    player.update(world, FPS)
     # update display handler
     display.update(player._pos)
     # update block mouse is hovering over
@@ -216,10 +216,12 @@ while running:
     # if valid location
     if _mouse_pos_block.x >= 0 and _mouse_pos_block.x < display.world_size[0] and \
        _mouse_pos_block.y >= 0 and _mouse_pos_block.y < display.world_size[1]:
+        # if left click
         if input_mouse_left and not input_mouse_left_last:
             # replace block with air
             world.set_block(_mouse_pos_block_rounded[0], _mouse_pos_block_rounded[1], BLOCK_AIR)
-        elif input_mouse_right and not input_mouse_right_last:
+        # if right click
+        if input_mouse_right and not input_mouse_right_last:
             # replace block with current block
             world.set_block(_mouse_pos_block_rounded[0], _mouse_pos_block_rounded[1], current_block)
     # update last input
@@ -250,7 +252,8 @@ while running:
                        f"y: {player._pos.y:.3f}",
                        f"block_scale: {display.block_scale}",
                        f"mouse_x: {_mouse_pos_block.x:.3f} ({_mouse_pos_block_rounded[0]})",
-                       f"mouse_y: {_mouse_pos_block.y:.3f} ({_mouse_pos_block_rounded[1]})"]
+                       f"mouse_y: {_mouse_pos_block.y:.3f} ({_mouse_pos_block_rounded[1]})",
+                       f"player_grounded: {player._grounded}"]
         surface.blits([(create_text_surface(_debug_info[i], COLOR_UI_INFO), (UI_SPACER, ((FONT_SIZE + UI_SPACER) * i) + UI_SPACER)) for i in range(len(_debug_info))])
 
 
