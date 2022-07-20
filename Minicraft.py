@@ -6,275 +6,271 @@ import pygame
 import random
 
 Color = pygame.Color
-Font = pygame.font.Font
 Surface = pygame.Surface
 Vec = pygame.Vector2
 
-Blocks = data.block.Blocks
-Display = data.display.Display
-Entity = data.entity.Entity
-World = data.world.World
+
+# main
+def main():
+
+    # constants
+    TITLE = "Minicraft"
+    SURFACE_SIZE = (800, 600)
+    FPS = 30
+    COLOR_BG = Color(128, 128, 128)
+    COLOR_FONT_DEBUG = Color(0, 0, 0)
+    COLOR_FONT_UI = Color(255, 255, 255)
+    UI_SPACER = 5
+    FONT_SIZE = 16
+    BLOCK_SCALE = 25
+    BLOCK_SCALE_MIN = 1
+    WORLD_SIZE = (256, 256)
+    GRAVITY = 10.0
 
 
-# constants
-TITLE = "Minicraft"
-SURFACE_SIZE = (800, 600)
-FPS = 30
-COLOR_BG = Color(128, 128, 128)
-COLOR_DEBUG_CENTER = Color(0, 64, 255)
-COLOR_FONT_DEBUG = Color(0, 0, 0)
-COLOR_FONT_UI = Color(255, 255, 255)
-COLOR_PLAYER = Color(255, 0, 0)
-UI_SPACER = 5
-FONT_SIZE = 16
-BLOCK_SCALE = 25
-BLOCK_SCALE_MIN = 1
-WORLD_SIZE = (64, 48)
-PLAYER_MOVE_SPEED = 3.0
-PLAYER_JUMP_VELOCITY = 3.5
-PLAYER_SIZE = Vec(0.75, 1.75)
-GRAVITY = 10.0
+    # variables
+    running = True
+    debug = False
+    player = data.entity.Entity(Color(255, 0, 0), Vec(0.75, 1.75), 3.0, 3.5)
+    input_move = Vec(0)
+    input_jump = False
+    input_mouse_left = False
+    input_mouse_right = False
+    input_mouse_left_last = False
+    input_mouse_right_last = False
+
+    # init
+    CLOCK = pygame.time.Clock()
+    pygame.init()
+    pygame.display.set_caption(TITLE)
+    surface = pygame.display.set_mode(SURFACE_SIZE, pygame.RESIZABLE)
+    display = data.display.Display(surface, BLOCK_SCALE, FPS)
+    player._pos = Vec(WORLD_SIZE) / 2
+    blocks = data.block.Blocks()
+    current_block = blocks.Dirt
+
+    # default world generation
+    _blocks = []
+    _dirt_level = int(WORLD_SIZE[1] / 2) - 1
+    _stone_level = int(WORLD_SIZE[1] / 3)
+    for y in range(WORLD_SIZE[1]):
+        _block_layer = []
+        for x in range(WORLD_SIZE[0]):
+            if y > _dirt_level:
+                _block_layer.append(blocks.Air)
+            elif y == _dirt_level:
+                _block_layer.append(blocks.Grass if random.random() < 0.8 else blocks.Dirt)
+            elif y > _stone_level:
+                _block_layer.append(blocks.Dirt)
+            else:
+                _block_layer.append(blocks.Stone)
+        _blocks.append(_block_layer)
+    world = data.world.World(_blocks, GRAVITY)
+    del _blocks, _dirt_level, _block_layer, y, x
+
+    # font
+    font = pygame.font.Font("data/font/type_writer.ttf", FONT_SIZE)
+
+    def create_text_surface(text: str, color: Color) -> Surface:
+        """returns a surface using the text and color"""
+        return font.render(text, False, color)
 
 
-# variables
-running = True
-debug = False
-player = Entity(COLOR_PLAYER, Vec(0.75, 1.75), PLAYER_MOVE_SPEED, PLAYER_JUMP_VELOCITY)
-input_move = Vec(0)
-input_jump = False
-input_mouse_left = False
-input_mouse_right = False
-input_mouse_left_last = False
-input_mouse_right_last = False
+    # loop
+    while running:
 
-# init
-CLOCK = pygame.time.Clock()
-pygame.init()
-pygame.display.set_caption(TITLE)
-surface = pygame.display.set_mode(SURFACE_SIZE, pygame.RESIZABLE)
-display = Display(surface, BLOCK_SCALE, FPS)
-player._pos = Vec(WORLD_SIZE) / 2
-blocks = Blocks()
-current_block = blocks.Dirt
+        # handle events
+        for event in pygame.event.get():
 
-# default world generation
-_blocks = []
-_dirt_level = int(WORLD_SIZE[1] / 2) - 1
-_stone_level = int(WORLD_SIZE[1] / 4) - 1
-for y in range(WORLD_SIZE[1]):
-    _block_layer = []
-    for x in range(WORLD_SIZE[0]):
-        if y > _dirt_level:
-            _block_layer.append(blocks.Air)
-        elif y == _dirt_level:
-            _block_layer.append(blocks.Grass if random.random() < 0.2 else blocks.Dirt)
-        elif y > _stone_level:
-            _block_layer.append(blocks.Dirt)
-        else:
-            _block_layer.append(blocks.Stone)
-    _blocks.append(_block_layer)
-world = World(_blocks, GRAVITY)
-del _blocks, _dirt_level, _block_layer, y, x
+            match event.type:
 
-# font
-font = Font("data/font/type_writer.ttf", FONT_SIZE)
+                # window close request
+                case pygame.QUIT:
 
-def create_text_surface(text: str, color: Color) -> Surface:
-    """returns a surface using the text and color"""
-    return font.render(text, False, color)
+                    # end program
+                    running = False
 
+                # key press
+                case pygame.KEYDOWN:
 
-# loop
-while running:
+                    match event.key:
 
-    # handle events
-    for event in pygame.event.get():
+                        # key press 'end'
+                        case pygame.K_END:
 
-        match event.type:
+                            # end program
+                            running = False
 
-            # window close request
-            case pygame.QUIT:
+                        # key press 'page down'
+                        case pygame.K_PAGEDOWN:
 
-                # end program
-                running = False
+                            # minimize window
+                            pygame.display.iconify()
 
-            # key press
-            case pygame.KEYDOWN:
+                        # key press 'f12'
+                        case pygame.K_F12:
 
-                match event.key:
+                            # toggle debug mode
+                            debug = not debug
 
-                    # key press 'end'
-                    case pygame.K_END:
+                        # key press 'tab'
+                        case pygame.K_TAB:
 
-                        # end program
-                        running = False
+                            # toggle grid mode
+                            display.show_grid = not display.show_grid
 
-                    # key press 'page down'
-                    case pygame.K_PAGEDOWN:
+                        # key press block selection
+                        case pygame.K_1:
+                            current_block = blocks.Dirt
+                        case pygame.K_2:
+                            current_block = blocks.Grass
+                        case pygame.K_3:
+                            current_block = blocks.Stone
 
-                        # minimize window
-                        pygame.display.iconify()
+                        # key press movement
+                        case pygame.K_w:
+                            input_move.y -= 1
+                        case pygame.K_a:
+                            input_move.x -= 1
+                        case pygame.K_s:
+                            input_move.y += 1
+                        case pygame.K_d:
+                            input_move.x += 1
+                        case pygame.K_SPACE:
+                            input_jump = True
 
-                    # key press 'f12'
-                    case pygame.K_F12:
+                # key release
+                case pygame.KEYUP:
 
-                        # toggle debug mode
-                        debug = not debug
+                    match event.key:
 
-                    # key press 'tab'
-                    case pygame.K_TAB:
+                        # key release movement
+                        case pygame.K_w:
+                            input_move.y += 1
+                        case pygame.K_a:
+                            input_move.x += 1
+                        case pygame.K_s:
+                            input_move.y -= 1
+                        case pygame.K_d:
+                            input_move.x -= 1
+                        case pygame.K_SPACE:
+                            input_jump = False
 
-                        # toggle grid mode
-                        display.show_grid = not display.show_grid
+                # mouse button press
+                case pygame.MOUSEBUTTONDOWN:
 
-                    # key press block selection
-                    case pygame.K_1:
-                        current_block = blocks.Dirt
-                    case pygame.K_2:
-                        current_block = blocks.Grass
-                    case pygame.K_3:
-                        current_block = blocks.Stone
+                    match event.button:
 
-                    # key press movement
-                    case pygame.K_w:
-                        input_move.y -= 1
-                    case pygame.K_a:
-                        input_move.x -= 1
-                    case pygame.K_s:
-                        input_move.y += 1
-                    case pygame.K_d:
-                        input_move.x += 1
-                    case pygame.K_SPACE:
-                        input_jump = True
+                        # mouse button left
+                        case 1:
+                            input_mouse_left = True
 
-            # key release
-            case pygame.KEYUP:
+                        # mouse button right
+                        case 3:
+                            input_mouse_right = True
 
-                match event.key:
+                # mouse button release
+                case pygame.MOUSEBUTTONUP:
 
-                    # key release movement
-                    case pygame.K_w:
-                        input_move.y += 1
-                    case pygame.K_a:
-                        input_move.x += 1
-                    case pygame.K_s:
-                        input_move.y -= 1
-                    case pygame.K_d:
-                        input_move.x -= 1
-                    case pygame.K_SPACE:
-                        input_jump = False
+                    match event.button:
 
-            # mouse button press
-            case pygame.MOUSEBUTTONDOWN:
+                        # mouse button left
+                        case 1:
+                            input_mouse_left = False
 
-                match event.button:
+                        # mouse button right
+                        case 3:
+                            input_mouse_right = False
 
-                    # mouse button left
-                    case 1:
-                        input_mouse_left = True
+                # mouse scrollwheel
+                case pygame.MOUSEWHEEL:
 
-                    # mouse button right
-                    case 3:
-                        input_mouse_right = True
+                    # adjust block scale
+                    display.block_scale += event.y
+                    # fix minimum scale
+                    if display.block_scale < BLOCK_SCALE_MIN:
+                        display.block_scale = BLOCK_SCALE_MIN
 
-            # mouse button release
-            case pygame.MOUSEBUTTONUP:
+                # resize window
+                case pygame.VIDEORESIZE:
 
-                match event.button:
+                    # update display info
+                    display.update_surface_size(Vec(event.w, event.h))
 
-                    # mouse button left
-                    case 1:
-                        input_mouse_left = False
-
-                    # mouse button right
-                    case 3:
-                        input_mouse_right = False
-
-            # mouse scrollwheel
-            case pygame.MOUSEWHEEL:
-
-                # adjust block scale
-                display.block_scale += event.y
-                # fix minimum scale
-                if display.block_scale < BLOCK_SCALE_MIN:
-                    display.block_scale = BLOCK_SCALE_MIN
-
-            # resize window
-            case pygame.VIDEORESIZE:
-
-                # update display info
-                display.update_surface_size(Vec(event.w, event.h))
-
-    # event handling end
+        # event handling end
 
 
-    # update
+        # update
 
-    # update player with input
-    player.handle_input(input_move, input_jump)
-    # update entities
-    player.update(world, display.fps)
-    # update world
-    world.update(display, blocks)
-    # update display handler
-    display.update(player._pos)
-    # get block position from mouse
-    _mouse_pos = Vec(pygame.mouse.get_pos())
-    _mouse_pos.y = display.surface_size.y - _mouse_pos.y - 1
-    _mouse_pos_block = ((_mouse_pos - display.surface_center) / display.block_scale) + player._pos
-    _mouse_pos_block_rounded = (int(_mouse_pos_block.x), int(_mouse_pos_block.y))
-    # catch out of bounds
-    try:
-        # if left click
-        if input_mouse_left and not input_mouse_left_last:
-            # replace block with air
-            world.set_block(_mouse_pos_block_rounded[0], _mouse_pos_block_rounded[1], blocks.Air)
-        # if right click
-        if input_mouse_right and not input_mouse_right_last:
-            # replace block with current block
-            world.set_block(_mouse_pos_block_rounded[0], _mouse_pos_block_rounded[1], current_block)
-    except:
-        pass
-    # update last input
-    input_mouse_left_last = input_mouse_left
-    input_mouse_right_last = input_mouse_right
-
-
-    # draw
-
-    # fill background
-    surface.fill(COLOR_BG)
-    # draw world
-    world.draw(display)
-    # draw player
-    player.draw(display)
-    # draw current selected block name
-    surface.blit(create_text_surface(f"block: {current_block.name}", COLOR_FONT_UI), (UI_SPACER, display.surface_size.y - FONT_SIZE - UI_SPACER))
-    # draw debug
-    if debug:
-        # draw debug info
-        _debug_info = [f"surface_size: {display.surface_size.x}x{display.surface_size.y}",
-                       f"world_size: {world.width}x{world.height}",
-                       f"world_ticks: {world.ticks} ({world.updates_per_second}/tick)",
-                       f"world_time: {(world.ticks / world.updates_per_second):.3f}",
-                       f"show_grid: {display.show_grid}",
-                       f"fps: {CLOCK.get_fps():.3f}",
-                       f"x: {player._pos.x:.3f}",
-                       f"y: {player._pos.y:.3f}",
-                       f"block_scale: {display.block_scale}",
-                       f"mouse_x: {_mouse_pos_block.x:.3f} ({_mouse_pos_block_rounded[0]})",
-                       f"mouse_y: {_mouse_pos_block.y:.3f} ({_mouse_pos_block_rounded[1]})",
-                       f"player_grounded: {player._grounded}"]
-        surface.blits([(create_text_surface(_debug_info[i], COLOR_FONT_DEBUG), (UI_SPACER, ((FONT_SIZE + UI_SPACER) * i) + UI_SPACER)) for i in range(len(_debug_info))])
-        del _mouse_pos, _mouse_pos_block, _mouse_pos_block_rounded, _debug_info
+        # update player with input
+        player.handle_input(input_move, input_jump)
+        # update entities
+        player.update(world, display.fps)
+        # update world
+        world.update(display, blocks)
+        # update display handler
+        display.update(player._pos)
+        # get block position from mouse
+        _mouse_pos = Vec(pygame.mouse.get_pos())
+        _mouse_pos.y = display.surface_size.y - _mouse_pos.y - 1
+        _mouse_pos_block = ((_mouse_pos - display.surface_center) / display.block_scale) + player._pos
+        _mouse_pos_block_rounded = (int(_mouse_pos_block.x), int(_mouse_pos_block.y))
+        # catch out of bounds
+        try:
+            # if left click
+            if input_mouse_left and not input_mouse_left_last:
+                # replace block with air
+                world.set_block(_mouse_pos_block_rounded[0], _mouse_pos_block_rounded[1], blocks.Air)
+            # if right click
+            if input_mouse_right and not input_mouse_right_last:
+                # replace block with current block
+                world.set_block(_mouse_pos_block_rounded[0], _mouse_pos_block_rounded[1], current_block)
+        except:
+            pass
+        # update last input
+        input_mouse_left_last = input_mouse_left
+        input_mouse_right_last = input_mouse_right
 
 
-    # update display
-    pygame.display.flip()
-    # framerate tick
-    CLOCK.tick(display.fps)
+        # draw
 
-    # loop end, loop again if running is True
+        # fill background
+        surface.fill(COLOR_BG)
+        # draw world
+        world.draw(display)
+        # draw player
+        player.draw(display)
+        # draw current selected block name
+        surface.blit(create_text_surface(f"block: {current_block.name}", COLOR_FONT_UI), (UI_SPACER, display.surface_size.y - FONT_SIZE - UI_SPACER))
+        # draw debug
+        if debug:
+            # draw debug info
+            _debug_info = [f"surface_size: {display.surface_size.x}x{display.surface_size.y}",
+                        f"world_size: {world.width}x{world.height} ({world.width * world.height})",
+                        f"world_ticks: {world.ticks} ({world.updates_per_second}/tick)",
+                        f"world_time: {(world.ticks / world.updates_per_second):.3f}",
+                        f"show_grid: {display.show_grid}",
+                        f"fps: {CLOCK.get_fps():.3f}",
+                        f"x: {player._pos.x:.3f}",
+                        f"y: {player._pos.y:.3f}",
+                        f"block_scale: {display.block_scale}",
+                        f"mouse_x: {_mouse_pos_block.x:.3f} ({_mouse_pos_block_rounded[0]})",
+                        f"mouse_y: {_mouse_pos_block.y:.3f} ({_mouse_pos_block_rounded[1]})",
+                        f"player_grounded: {player._grounded}"]
+            surface.blits([(create_text_surface(_debug_info[i], COLOR_FONT_DEBUG), (UI_SPACER, ((FONT_SIZE + UI_SPACER) * i) + UI_SPACER)) for i in range(len(_debug_info))])
+            del _mouse_pos, _mouse_pos_block, _mouse_pos_block_rounded, _debug_info
 
-# quit
-pygame.quit()
+
+        # update display
+        pygame.display.flip()
+        # framerate tick
+        CLOCK.tick(display.fps)
+
+        # loop end, loop again if running is True
+
+    # quit
+    pygame.quit()
+
+
+if __name__ == "__main__":
+    main()

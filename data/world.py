@@ -14,7 +14,7 @@ class World:
         self.gravity = gravity
         self.ticks = 0
         # makes tick rate scale for amount of blocks in world
-        self.updates_per_second = self.width * self.height
+        self.updates_per_second = int((self.width * self.height) / 2)
         # amount of time to wait to pass before updating
         self.update_step = 1.0 / self.updates_per_second
         self.update_ms = 0.0
@@ -39,6 +39,7 @@ class World:
     def draw(self, display):
         """draws all world blocks to the display surface"""
         _draw_scale = Vec(display.block_scale - 1 if display.show_grid else display.block_scale)
+        # TODO make start/end only on screen
         for y in range(self.height):
             for x in range(self.width):
                 _draw_pos = -display.camera_offset + Vec(x * display.block_scale,
