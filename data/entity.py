@@ -1,10 +1,5 @@
 import math
 import pygame
-from . import display
-from . import world
-
-Display = display.Display
-World = world.World
 
 Color = pygame.Color
 Vec = pygame.Vector2
@@ -22,7 +17,7 @@ class Entity:
         self._vel = Vec(0)
         self._grounded = False
 
-    def draw(self, display: Display):
+    def draw(self, display):
         """uses the current camera offset and block scale to draw the entity to the surface"""
         # get current screen size of player
         _current_size = self._dims * display.block_scale
@@ -35,12 +30,12 @@ class Entity:
         # find final screen draw position
         _draw_pos = _rel_pos - _draw_offset - display.camera_offset
         # round draw position
-        _draw_pos.x = round(_draw_pos.x)
-        _draw_pos.y = round(_draw_pos.y)
+        _draw_pos.x = math.ceil(_draw_pos.x)
+        _draw_pos.y = math.ceil(_draw_pos.y)
         # draw to surface
         pygame.draw.rect(display.surface, self._color, (_draw_pos, _current_size))
 
-    def update(self, world: World, fps: float):
+    def update(self, world, fps: float):
         """updates the entity"""
         # add movement this frame
         if not self._grounded:

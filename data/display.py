@@ -7,15 +7,17 @@ Vec = pygame.Vector2
 class Display:
     """holds information regarding visual display"""
 
-    def __init__(self, surface: Surface, world_size: tuple[int, int], block_scale: int):
+    def __init__(self, surface: Surface, block_scale: int, fps: int):
         self.surface = surface
         self.update_surface_size(Vec(surface.get_size()))
-        self.world_size = world_size
-        self.world_center = Vec(self.world_size) / 2
         self.block_scale = block_scale
+        self.fps = fps
+        # the amount of time that should pass between each frame
+        self.fps_ms = 1.0 / fps
         self.show_grid = False
 
     def update_surface_size(self, surface_size: Vec):
+        """updates display variables using size of surface"""
         self.surface_size = surface_size
         self.surface_center = self.surface_size / 2
         self.camera_offset = -self.surface_center

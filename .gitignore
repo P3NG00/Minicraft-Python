@@ -1,6 +1,6 @@
 .git/
 .venv/
 .vscode/
-data/__pycache__
+__pycache__/
 IDEAS.txt
 test.py
