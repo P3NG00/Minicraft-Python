@@ -27,19 +27,19 @@ class BlockGrass(Block):
 
     def update(self, position: tuple[int, int], world, blocks):
         # catch out of bounds exceptions
-        try:
-            if world.get_block(position[0], position[1] + 1).is_air:
-                # check blocks to spread to
-                _offset = self._offsets[random.randrange(0, len(self._offsets))]
-                _check_pos = (position[0] + _offset[0], position[1] + _offset[1])
+        if position[1] + 1 == world.height or world.get_block(position[0], position[1] + 1).is_air:
+            # check blocks to spread to
+            _offset = self._offsets[random.randrange(0, len(self._offsets))]
+            _check_pos = (position[0] + _offset[0], position[1] + _offset[1])
+            try:
                 _block = world.get_block(_check_pos[0], _check_pos[1])
                 if _block is blocks.Dirt:
-                    if world.get_block(_check_pos[0], _check_pos[1] + 1) is blocks.Air:
+                    if _check_pos[1] + 1 == world.height or world.get_block(_check_pos[0], _check_pos[1] + 1).is_air:
                         world.set_block(_check_pos[0], _check_pos[1], blocks.Grass)
-            else:
-                world.set_block(position[0], position[1], blocks.Dirt)
-        except:
-            pass
+            except IndexError:
+                pass
+        else:
+            world.set_block(position[0], position[1], blocks.Dirt)
 
 # blocks class
 class Blocks:
