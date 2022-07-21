@@ -40,8 +40,10 @@ class Entity:
         # add movement this tick
         self.pos += (self.velocity * display.tick_step) * self.speed
         # test floor
-        if world.get_block(int(self.pos.x), int(self.pos.y)).is_air:
-            self.is_grounded = False
+        _block_pos = (int(self.pos.x), int(self.pos.y))
+        if world.get_block(_block_pos[0], _block_pos[1]).is_air:
+            if not self.pos.y.is_integer() or world.get_block(_block_pos[0], _block_pos[1] - 1).is_air:
+                self.is_grounded = False
         else:
             self.pos.y = math.ceil(self.pos.y)
             self.velocity.y = 0
