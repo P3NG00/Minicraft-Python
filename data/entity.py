@@ -35,12 +35,12 @@ class Entity:
         # draw to surface
         pygame.draw.rect(display.surface, self.color, (_draw_pos, _current_size))
 
-    def update(self, world, fps: float):
+    def update(self, display, world):
         """updates the entity"""
         # add movement this frame
         if not self.is_grounded:
-            self.velocity.y -= world.gravity / fps
-        self.pos += (self.velocity / fps) * self.speed
+            self.velocity.y -= world.gravity * display.delta_time()
+        self.pos += (self.velocity * display.delta_time()) * self.speed
         if not world.get_block(int(self.pos.x), int(self.pos.y)).is_air:
             self.pos.y = math.ceil(self.pos.y)
             self.velocity.y = 0

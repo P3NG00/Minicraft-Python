@@ -12,10 +12,12 @@ class Display:
         self.update_surface_size(Vec(surface.get_size()))
         self.block_scale = block_scale
         self.fps = fps
-        # the amount of time that should pass between each frame
-        self.fps_ms = 1.0 / fps
         self.show_grid = False
         self.clock = pygame.time.Clock()
+
+    def delta_time(self) -> float:
+        """returns the amount of time the last frame took"""
+        return self.clock.get_time() / 1000.0
 
     def update_surface_size(self, surface_size: Vec):
         """updates display variables using size of surface"""

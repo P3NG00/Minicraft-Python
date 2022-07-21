@@ -204,7 +204,7 @@ def main():
         # update player with input
         player.handle_input(input_move, input_jump)
         # update entities
-        player.update(world, display.fps)
+        player.update(display, world)
         # update world
         world.update(display, blocks)
         # update display handler

@@ -29,7 +29,7 @@ class World:
 
     def update(self, display, blocks):
         """updates the world"""
-        self.update_ms += display.fps_ms
+        self.update_ms += display.delta_time()
         while self.update_ms >= self.update_step:
             self.ticks += 1
             self.update_ms -= self.update_step
@@ -43,6 +43,17 @@ class World:
         _visual_height = int(display.surface_size.y / display.block_scale)
         _visual_start_x = int(player.pos.x - (_visual_width / 2))
         _visual_start_y = int(player.pos.y - (_visual_height / 2))
+        # fix variables if outside of bounds
+        if _visual_start_x < 0:
+            _visual_width += _visual_start_x
+            _visual_start_x = 0
+        if _visual_start_y < 0:
+            _visual_height += _visual_start_y
+            _visual_start_y = 0
+        if _visual_width >= self.width - _visual_start_x:
+            _visual_width = self.width - _visual_start_x - 1
+        if _visual_height >= self.height - _visual_start_y:
+            _visual_height = self.height - _visual_start_y - 1
         for y in range(_visual_height):
             for x in range(_visual_width):
                 _x = x + _visual_start_x
