@@ -24,10 +24,10 @@ def main():
     FONT_SIZE = 16
     BLOCK_SCALE = 25
     BLOCK_SCALE_MAX = 75
-    BLOCK_SCALE_MIN = 10
-    WORLD_SIZE = (256, 256)
+    BLOCK_SCALE_MIN = 3
+    WORLD_SIZE = (1024, 512)
     TICKS_PER_SECOND = 64
-    BLOCK_UPDATES_PER_TICK = 32
+    WORLD_UPDATED_PER_SECOND = 1.0 / 16.0
     GRAVITY = 10.0
 
 
@@ -67,7 +67,7 @@ def main():
             else:
                 _block_layer.append(blocks.Stone)
         _blocks.append(_block_layer)
-    world = data.world.World(_blocks, GRAVITY, BLOCK_UPDATES_PER_TICK)
+    world = data.world.World(_blocks, GRAVITY, int(((WORLD_SIZE[0] * WORLD_SIZE[1]) * WORLD_UPDATED_PER_SECOND) / display.tps))
     del _blocks, _dirt_level, _stone_level, _block_layer, y, x
 
     # font
