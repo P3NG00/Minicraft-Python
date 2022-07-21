@@ -16,7 +16,7 @@ def main():
     # constants
     TITLE = "Minicraft"
     SURFACE_SIZE = (1280, 720)
-    FPS = 30
+    FPS = 60
     COLOR_BG = Color(128, 128, 128)
     COLOR_FONT_DEBUG = Color(0, 0, 0)
     COLOR_FONT_UI = Color(255, 255, 255)
@@ -26,6 +26,8 @@ def main():
     BLOCK_SCALE_MAX = 75
     BLOCK_SCALE_MIN = 10
     WORLD_SIZE = (256, 256)
+    TICKS_PER_SECOND = 64
+    BLOCK_UPDATES_PER_TICK = 32
     GRAVITY = 10.0
 
 
@@ -44,7 +46,7 @@ def main():
     pygame.init()
     pygame.display.set_caption(TITLE)
     surface = pygame.display.set_mode(SURFACE_SIZE, pygame.RESIZABLE)
-    display = data.display.Display(surface, BLOCK_SCALE, FPS)
+    display = data.display.Display(surface, BLOCK_SCALE, FPS, TICKS_PER_SECOND)
     player.pos = Vec(WORLD_SIZE) / 2
     blocks = data.block.Blocks()
     current_block = blocks.Dirt
@@ -65,7 +67,7 @@ def main():
             else:
                 _block_layer.append(blocks.Stone)
         _blocks.append(_block_layer)
-    world = data.world.World(_blocks, GRAVITY)
+    world = data.world.World(_blocks, GRAVITY, BLOCK_UPDATES_PER_TICK)
     del _blocks, _dirt_level, _stone_level, _block_layer, y, x
 
     # font
@@ -76,162 +78,171 @@ def main():
         return font.render(text, False, color)
 
 
-    # loop
+    # main game loop
     while running:
 
-        # handle events
-        for event in pygame.event.get():
+        # run update appropriate amount of times
+        display.tick_delta += display.delta_time()
 
-            match event.type:
+        while display.tick_delta >= display.tick_step:
 
-                # window close request
-                case pygame.QUIT:
+            display.tick_delta -= display.tick_step
+            display.ticks += 1
 
-                    # end program
-                    running = False
+            # handle events
+            for event in pygame.event.get():
 
-                # key press
-                case pygame.KEYDOWN:
+                match event.type:
 
-                    match event.key:
+                    # window close request
+                    case pygame.QUIT:
 
-                        # key press 'end'
-                        case pygame.K_END:
+                        # end program
+                        running = False
 
-                            # end program
-                            running = False
+                    # key press
+                    case pygame.KEYDOWN:
 
-                        # key press 'page down'
-                        case pygame.K_PAGEDOWN:
+                        match event.key:
 
-                            # minimize window
-                            pygame.display.iconify()
+                            # key press 'end'
+                            case pygame.K_END:
 
-                        # key press 'f12'
-                        case pygame.K_F12:
+                                # end program
+                                running = False
 
-                            # toggle debug mode
-                            debug = not debug
+                            # key press 'page down'
+                            case pygame.K_PAGEDOWN:
 
-                        # key press 'tab'
-                        case pygame.K_TAB:
+                                # minimize window
+                                pygame.display.iconify()
 
-                            # toggle grid mode
-                            display.show_grid = not display.show_grid
+                            # key press 'f12'
+                            case pygame.K_F12:
 
-                        # key press block selection
-                        case pygame.K_1:
-                            current_block = blocks.Dirt
-                        case pygame.K_2:
-                            current_block = blocks.Grass
-                        case pygame.K_3:
-                            current_block = blocks.Stone
+                                # toggle debug mode
+                                debug = not debug
 
-                        # key press movement
-                        case pygame.K_w:
-                            input_move.y -= 1
-                        case pygame.K_a:
-                            input_move.x -= 1
-                        case pygame.K_s:
-                            input_move.y += 1
-                        case pygame.K_d:
-                            input_move.x += 1
-                        case pygame.K_SPACE:
-                            input_jump = True
+                            # key press 'tab'
+                            case pygame.K_TAB:
 
-                # key release
-                case pygame.KEYUP:
+                                # toggle grid mode
+                                display.show_grid = not display.show_grid
 
-                    match event.key:
+                            # key press block selection
+                            case pygame.K_1:
+                                current_block = blocks.Dirt
+                            case pygame.K_2:
+                                current_block = blocks.Grass
+                            case pygame.K_3:
+                                current_block = blocks.Stone
 
-                        # key release movement
-                        case pygame.K_w:
-                            input_move.y += 1
-                        case pygame.K_a:
-                            input_move.x += 1
-                        case pygame.K_s:
-                            input_move.y -= 1
-                        case pygame.K_d:
-                            input_move.x -= 1
-                        case pygame.K_SPACE:
-                            input_jump = False
+                            # key press movement
+                            case pygame.K_w:
+                                input_move.y -= 1
+                            case pygame.K_a:
+                                input_move.x -= 1
+                            case pygame.K_s:
+                                input_move.y += 1
+                            case pygame.K_d:
+                                input_move.x += 1
+                            case pygame.K_SPACE:
+                                input_jump = True
 
-                # mouse button press
-                case pygame.MOUSEBUTTONDOWN:
+                    # key release
+                    case pygame.KEYUP:
 
-                    match event.button:
+                        match event.key:
 
-                        # mouse button left
-                        case 1:
-                            input_mouse_left = True
+                            # key release movement
+                            case pygame.K_w:
+                                input_move.y += 1
+                            case pygame.K_a:
+                                input_move.x += 1
+                            case pygame.K_s:
+                                input_move.y -= 1
+                            case pygame.K_d:
+                                input_move.x -= 1
+                            case pygame.K_SPACE:
+                                input_jump = False
 
-                        # mouse button right
-                        case 3:
-                            input_mouse_right = True
+                    # mouse button press
+                    case pygame.MOUSEBUTTONDOWN:
 
-                # mouse button release
-                case pygame.MOUSEBUTTONUP:
+                        match event.button:
 
-                    match event.button:
+                            # mouse button left
+                            case 1:
+                                input_mouse_left = True
 
-                        # mouse button left
-                        case 1:
-                            input_mouse_left = False
+                            # mouse button right
+                            case 3:
+                                input_mouse_right = True
 
-                        # mouse button right
-                        case 3:
-                            input_mouse_right = False
+                    # mouse button release
+                    case pygame.MOUSEBUTTONUP:
 
-                # mouse scrollwheel
-                case pygame.MOUSEWHEEL:
+                        match event.button:
 
-                    # adjust block scale
-                    display.block_scale += event.y
-                    # fix minimum scale
-                    if display.block_scale < BLOCK_SCALE_MIN:
-                        display.block_scale = BLOCK_SCALE_MIN
-                    elif display.block_scale > BLOCK_SCALE_MAX:
-                        display.block_scale = BLOCK_SCALE_MAX
+                            # mouse button left
+                            case 1:
+                                input_mouse_left = False
 
-                # resize window
-                case pygame.VIDEORESIZE:
+                            # mouse button right
+                            case 3:
+                                input_mouse_right = False
 
-                    # update display info
-                    display.update_surface_size(Vec(event.w, event.h))
+                    # mouse scrollwheel
+                    case pygame.MOUSEWHEEL:
 
-        # event handling end
+                        # adjust block scale
+                        display.block_scale += event.y
+                        # fix minimum scale
+                        if display.block_scale < BLOCK_SCALE_MIN:
+                            display.block_scale = BLOCK_SCALE_MIN
+                        elif display.block_scale > BLOCK_SCALE_MAX:
+                            display.block_scale = BLOCK_SCALE_MAX
+
+                    # resize window
+                    case pygame.VIDEORESIZE:
+
+                        # update display info
+                        display.update_surface_size(Vec(event.w, event.h))
+
+            # event handling end
 
 
-        # update
+            # update
 
-        # update player with input
-        player.handle_input(input_move, input_jump)
-        # update entities
-        player.update(display, world)
-        # update world
-        world.update(display, blocks)
-        # update display handler
-        display.update(player)
-        # get block position from mouse
-        _mouse_pos = Vec(pygame.mouse.get_pos())
-        _mouse_pos.y = display.surface_size.y - _mouse_pos.y - 1
-        _mouse_pos_block = ((_mouse_pos - display.surface_center) / display.block_scale) + player.pos
-        _mouse_pos_block_rounded = (int(_mouse_pos_block.x), int(_mouse_pos_block.y))
-        # catch out of bounds
-        try:
-            # if left click
-            if input_mouse_left and not input_mouse_left_last:
-                # replace block with air
-                world.set_block(_mouse_pos_block_rounded[0], _mouse_pos_block_rounded[1], blocks.Air)
-            # if right click
-            if input_mouse_right and not input_mouse_right_last:
-                # replace block with current block
-                world.set_block(_mouse_pos_block_rounded[0], _mouse_pos_block_rounded[1], current_block)
-        except:
-            pass
-        # update last input
-        input_mouse_left_last = input_mouse_left
-        input_mouse_right_last = input_mouse_right
+            # update player with input
+            player.handle_input(input_move, input_jump)
+            # update entities
+            player.update(display, world)
+            # update world
+            world.update(blocks)
+            # update display handler
+            display.update(player)
+            # get block position from mouse
+            _mouse_pos = Vec(pygame.mouse.get_pos())
+            _mouse_pos.y = display.surface_size.y - _mouse_pos.y - 1
+            _mouse_pos_block = ((_mouse_pos - display.surface_center) / display.block_scale) + player.pos
+            _mouse_pos_block_rounded = (int(_mouse_pos_block.x), int(_mouse_pos_block.y))
+            # catch out of bounds
+            try:
+                # if left click
+                if input_mouse_left and not input_mouse_left_last:
+                    # replace block with air
+                    world.set_block(_mouse_pos_block_rounded[0], _mouse_pos_block_rounded[1], blocks.Air)
+                # if right click
+                if input_mouse_right and not input_mouse_right_last:
+                    # replace block with current block
+                    world.set_block(_mouse_pos_block_rounded[0], _mouse_pos_block_rounded[1], current_block)
+            except:
+                pass
+            # update last input
+            input_mouse_left_last = input_mouse_left
+            input_mouse_right_last = input_mouse_right
+        # end update loop
 
 
         # draw
@@ -247,10 +258,10 @@ def main():
         # draw debug
         if debug:
             # draw debug info
-            _debug_info = [f"surface_size: {display.surface_size.x}x{display.surface_size.y}",
+            _debug_info = [f"surface_size: {int(display.surface_size.x)}x{int(display.surface_size.y)}",
                            f"world_size: {world.width}x{world.height} ({world.width * world.height})",
-                           f"world_ticks: {world.ticks} ({world.updates_per_second}/sec)",
-                           f"world_time: {(world.ticks / world.updates_per_second):.3f}",
+                           f"ticks: {display.ticks} ({display.tps}/tps)",
+                           f"seconds: {(display.ticks / display.tps):.3f}",
                            f"show_grid: {display.show_grid}",
                            f"fps: {display.clock.get_fps():.3f}",
                            f"x: {player.pos.x:.3f}",
@@ -260,7 +271,6 @@ def main():
                            f"mouse_y: {_mouse_pos_block.y:.3f} ({_mouse_pos_block_rounded[1]})",
                            f"player_grounded: {player.is_grounded}"]
             surface.blits([(create_text_surface(_debug_info[i], COLOR_FONT_DEBUG), (UI_SPACER, ((FONT_SIZE + UI_SPACER) * i) + UI_SPACER)) for i in range(len(_debug_info))])
-            del _mouse_pos, _mouse_pos_block, _mouse_pos_block_rounded, _debug_info
 
 
         # update display

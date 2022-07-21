@@ -26,7 +26,7 @@ class BlockGrass(Block):
                          (-1, -1), (1, -1)]
 
     def update(self, position: tuple[int, int], world, blocks):
-        # catch out of bounds exceptions
+        # if able to spread
         if position[1] + 1 == world.height or world.get_block(position[0], position[1] + 1).is_air:
             # check blocks to spread to
             _offset = self._offsets[random.randrange(0, len(self._offsets))]

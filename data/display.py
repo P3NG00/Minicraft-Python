@@ -7,13 +7,17 @@ Vec = pygame.Vector2
 class Display:
     """holds information regarding visual display"""
 
-    def __init__(self, surface: Surface, block_scale: int, fps: int):
+    def __init__(self, surface: Surface, block_scale: int, fps: int, tps: int):
         self.surface = surface
         self.update_surface_size(Vec(surface.get_size()))
         self.block_scale = block_scale
         self.fps = fps
         self.show_grid = False
         self.clock = pygame.time.Clock()
+        self.tps = tps
+        self.tick_step = 1.0 / self.tps
+        self.tick_delta = 0.0
+        self.ticks = 0
 
     def delta_time(self) -> float:
         """returns the amount of time the last frame took"""

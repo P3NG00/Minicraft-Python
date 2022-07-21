@@ -8,17 +8,13 @@ Vec = pygame.Vector2
 class World:
     """holds block information"""
 
-    def __init__(self, block_grid: list[list], gravity: float):
+    def __init__(self, block_grid: list[list], gravity: float, block_updates_per_tick: int):
         self.block_grid = block_grid
         self.width = len(block_grid[0])
         self.height = len(block_grid)
+        self.area = self.width * self.height
         self.gravity = gravity
-        self.ticks = 0
-        # makes tick rate scale for amount of blocks in world
-        self.updates_per_second = int((self.width * self.height) / 2)
-        # amount of time to wait to pass before updating
-        self.update_step = 1.0 / self.updates_per_second
-        self.update_ms = 0.0
+        self.block_updates_per_tick = block_updates_per_tick
 
     def get_block(self, x: int, y: int):
         """returns the block at the specified position"""
@@ -28,12 +24,9 @@ class World:
         """updates the block value of a position"""
         self.block_grid[y][x] = block
 
-    def update(self, display, blocks):
+    def update(self, blocks):
         """updates the world"""
-        self.update_ms += display.delta_time()
-        while self.update_ms >= self.update_step:
-            self.ticks += 1
-            self.update_ms -= self.update_step
+        for _ in range(self.block_updates_per_tick):
             _rand_pos = (random.randrange(0, self.width), random.randrange(0, self.height))
             self.get_block(_rand_pos[0], _rand_pos[1]).update(_rand_pos, self, blocks)
 

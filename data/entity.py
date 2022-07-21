@@ -39,8 +39,8 @@ class Entity:
         """updates the entity"""
         # add movement this frame
         if not self.is_grounded:
-            self.velocity.y -= world.gravity * display.delta_time()
-        self.pos += (self.velocity * display.delta_time()) * self.speed
+            self.velocity.y -= world.gravity * display.tick_step
+        self.pos += (self.velocity * display.tick_step) * self.speed
         if not world.get_block(int(self.pos.x), int(self.pos.y)).is_air:
             self.pos.y = math.ceil(self.pos.y)
             self.velocity.y = 0
