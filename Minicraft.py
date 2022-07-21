@@ -27,7 +27,7 @@ def main():
     BLOCK_SCALE_MIN = 3
     WORLD_SIZE = (1024, 512)
     TICKS_PER_SECOND = 32
-    WORLD_UPDATED_PER_SECOND = 1.0 / 16.0
+    WORLD_UPDATED_PER_SECOND = 1.0 / 32.0
     GRAVITY = 10.0
 
 
@@ -268,7 +268,7 @@ def main():
                            f"ticks: {display.tick_total} ({display.tps}/tps)",
                            f"ticks_this_frame: {display.tick_total - display.tick_total_last}",
                            f"show_grid: {display.show_grid}",
-                           f"fps: {display.clock.get_fps():.3f}",
+                           f"fps: {display.clock.get_fps():.3f}/{display.fps}",
                            f"x: {player.pos.x:.3f}",
                            f"y: {player.pos.y:.3f}",
                            f"block_scale: {display.block_scale}",
