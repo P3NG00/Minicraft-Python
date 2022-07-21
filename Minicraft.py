@@ -16,19 +16,19 @@ def main():
     # constants
     TITLE = "Minicraft"
     SURFACE_SIZE = (800, 600)
-    FPS = 60
-    COLOR_BG = Color(128, 128, 128)
-    COLOR_FONT_DEBUG = Color(0, 0, 0)
-    COLOR_FONT_UI = Color(255, 255, 255)
-    UI_SPACER = 5
-    FONT_SIZE = 16
+    FRAMES_PER_SECOND = 60
+    TICKS_PER_SECOND = 32
+    WORLD_UPDATED_PER_SECOND = 1.0 / 32.0
+    WORLD_SIZE = (1024, 512)
+    GRAVITY = 10.0
     BLOCK_SCALE = 25
     BLOCK_SCALE_MAX = 75
     BLOCK_SCALE_MIN = 3
-    WORLD_SIZE = (1024, 512)
-    TICKS_PER_SECOND = 32
-    WORLD_UPDATED_PER_SECOND = 1.0 / 32.0
-    GRAVITY = 10.0
+    COLOR_BG = Color(128, 128, 128)
+    COLOR_FONT_DEBUG = Color(0, 0, 0)
+    COLOR_FONT_UI = Color(255, 255, 255)
+    FONT_SIZE = 16
+    UI_SPACER = 5
 
 
     # variables
@@ -46,7 +46,7 @@ def main():
     pygame.init()
     pygame.display.set_caption(TITLE)
     surface = pygame.display.set_mode(SURFACE_SIZE, pygame.RESIZABLE)
-    display = data.display.Display(surface, BLOCK_SCALE, FPS, TICKS_PER_SECOND)
+    display = data.display.Display(surface, BLOCK_SCALE, FRAMES_PER_SECOND, TICKS_PER_SECOND)
     player.pos = Vec(WORLD_SIZE) / 2
     blocks = data.block.Blocks()
     current_block = blocks.Dirt
