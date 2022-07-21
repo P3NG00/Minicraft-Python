@@ -37,14 +37,18 @@ class Entity:
 
     def update(self, display, world):
         """updates the entity"""
-        # add movement this frame
-        if not self.is_grounded:
-            self.velocity.y -= world.gravity * display.tick_step
+        # add movement this tick
         self.pos += (self.velocity * display.tick_step) * self.speed
-        if not world.get_block(int(self.pos.x), int(self.pos.y)).is_air:
+        # test floor
+        if world.get_block(int(self.pos.x), int(self.pos.y)).is_air:
+            self.is_grounded = False
+        else:
             self.pos.y = math.ceil(self.pos.y)
             self.velocity.y = 0
             self.is_grounded = True
+        # add velocity if falling
+        if not self.is_grounded:
+            self.velocity.y -= world.gravity * display.tick_step
         # TODO take into account wall tiles
 
     def handle_input(self, movement: Vec, jump: bool):
