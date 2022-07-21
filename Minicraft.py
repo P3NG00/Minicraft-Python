@@ -23,6 +23,7 @@ def main():
     UI_SPACER = 5
     FONT_SIZE = 16
     BLOCK_SCALE = 25
+    BLOCK_SCALE_MAX = 75
     BLOCK_SCALE_MIN = 10
     WORLD_SIZE = (256, 256)
     GRAVITY = 10.0
@@ -189,6 +190,8 @@ def main():
                     # fix minimum scale
                     if display.block_scale < BLOCK_SCALE_MIN:
                         display.block_scale = BLOCK_SCALE_MIN
+                    elif display.block_scale > BLOCK_SCALE_MAX:
+                        display.block_scale = BLOCK_SCALE_MAX
 
                 # resize window
                 case pygame.VIDEORESIZE:
@@ -246,7 +249,7 @@ def main():
             # draw debug info
             _debug_info = [f"surface_size: {display.surface_size.x}x{display.surface_size.y}",
                            f"world_size: {world.width}x{world.height} ({world.width * world.height})",
-                           f"world_ticks: {world.ticks} ({world.updates_per_second}/tick)",
+                           f"world_ticks: {world.ticks} ({world.updates_per_second}/sec)",
                            f"world_time: {(world.ticks / world.updates_per_second):.3f}",
                            f"show_grid: {display.show_grid}",
                            f"fps: {display.clock.get_fps():.3f}",
