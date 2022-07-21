@@ -18,6 +18,7 @@ class Display:
         self.tick_step = 1.0 / self.tps
         self.tick_delta = 0.0
         self.tick_total = 0
+        self.tick_total_last = 0
 
     def delta_time(self) -> float:
         """returns the amount of time the last frame took"""

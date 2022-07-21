@@ -26,7 +26,7 @@ def main():
     BLOCK_SCALE_MAX = 75
     BLOCK_SCALE_MIN = 3
     WORLD_SIZE = (1024, 512)
-    TICKS_PER_SECOND = 64
+    TICKS_PER_SECOND = 32
     WORLD_UPDATED_PER_SECOND = 1.0 / 16.0
     GRAVITY = 10.0
 
@@ -83,6 +83,8 @@ def main():
 
         # add delta time
         display.tick_delta += display.delta_time()
+        # update last tick total
+        display.tick_total_last = display.tick_total
 
         # update for every tick step
         while display.tick_delta >= display.tick_step:
@@ -262,8 +264,9 @@ def main():
             # draw debug info
             _debug_info = [f"surface_size: {int(display.surface_size.x)}x{int(display.surface_size.y)}",
                            f"world_size: {world.width}x{world.height} ({world.width * world.height})",
+                           f"time: {(display.tick_total / display.tps):.3f}",
                            f"ticks: {display.tick_total} ({display.tps}/tps)",
-                           f"seconds: {(display.tick_total / display.tps):.3f}",
+                           f"ticks_this_frame: {display.tick_total - display.tick_total_last}",
                            f"show_grid: {display.show_grid}",
                            f"fps: {display.clock.get_fps():.3f}",
                            f"x: {player.pos.x:.3f}",
