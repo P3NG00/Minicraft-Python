@@ -1,3 +1,4 @@
+import math
 import pygame
 import random
 
@@ -39,10 +40,10 @@ class World:
     def draw(self, display, player):
         """draws all world blocks to the display surface"""
         _draw_scale = Vec(display.block_scale - 1 if display.show_grid else display.block_scale)
-        _visual_width = int(display.surface_size.x / display.block_scale)
-        _visual_height = int(display.surface_size.y / display.block_scale)
-        _visual_start_x = int(player.pos.x - (_visual_width / 2))
-        _visual_start_y = int(player.pos.y - (_visual_height / 2))
+        _visual_width = math.ceil(display.surface_size.x / display.block_scale) + 2
+        _visual_height = math.ceil(display.surface_size.y / display.block_scale) + 2
+        _visual_start_x = math.floor(player.pos.x - (_visual_width / 2.0))
+        _visual_start_y = math.floor(player.pos.y - (_visual_height / 2.0))
         # fix variables if outside of bounds
         if _visual_start_x < 0:
             _visual_width += _visual_start_x
