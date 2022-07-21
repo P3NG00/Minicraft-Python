@@ -12,7 +12,6 @@ class World:
         self.block_grid = block_grid
         self.width = len(block_grid[0])
         self.height = len(block_grid)
-        self.area = self.width * self.height
         self.gravity = gravity
         self.block_updates_per_tick = block_updates_per_tick
 

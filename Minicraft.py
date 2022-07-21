@@ -90,7 +90,7 @@ def main():
             # decrement delta time by tick step
             display.tick_delta -= display.tick_step
             # increment total tick counter
-            display.ticks += 1
+            display.tick_total += 1
 
 
             # update
@@ -228,20 +228,19 @@ def main():
             # get block position from mouse
             _mouse_pos = Vec(pygame.mouse.get_pos())
             _mouse_pos.y = display.surface_size.y - _mouse_pos.y - 1
-            _mouse_pos_block = ((_mouse_pos - display.surface_center) / display.block_scale) + player.pos
-            _mouse_pos_block_rounded = (int(_mouse_pos_block.x), int(_mouse_pos_block.y))
+            _mouse_pos_rel = ((_mouse_pos - display.surface_center) / display.block_scale) + player.pos
+            _block_pos = (int(_mouse_pos_rel.x), int(_mouse_pos_rel.y))
             # catch out of bounds
-            try:
+            if _block_pos[0] >= 0 and _block_pos[0] < world.width and \
+               _block_pos[1] >= 0 and _block_pos[1] < world.height:
                 # if left click
                 if input_mouse_left and not input_mouse_left_last:
                     # replace block with air
-                    world.set_block(_mouse_pos_block_rounded[0], _mouse_pos_block_rounded[1], blocks.Air)
+                    world.set_block(_block_pos[0], _block_pos[1], blocks.Air)
                 # if right click
                 if input_mouse_right and not input_mouse_right_last:
                     # replace block with current block
-                    world.set_block(_mouse_pos_block_rounded[0], _mouse_pos_block_rounded[1], current_block)
-            except:
-                pass
+                    world.set_block(_block_pos[0], _block_pos[1], current_block)
             # update last input
             input_mouse_left_last = input_mouse_left
             input_mouse_right_last = input_mouse_right
@@ -263,15 +262,15 @@ def main():
             # draw debug info
             _debug_info = [f"surface_size: {int(display.surface_size.x)}x{int(display.surface_size.y)}",
                            f"world_size: {world.width}x{world.height} ({world.width * world.height})",
-                           f"ticks: {display.ticks} ({display.tps}/tps)",
-                           f"seconds: {(display.ticks / display.tps):.3f}",
+                           f"ticks: {display.tick_total} ({display.tps}/tps)",
+                           f"seconds: {(display.tick_total / display.tps):.3f}",
                            f"show_grid: {display.show_grid}",
                            f"fps: {display.clock.get_fps():.3f}",
                            f"x: {player.pos.x:.3f}",
                            f"y: {player.pos.y:.3f}",
                            f"block_scale: {display.block_scale}",
-                           f"mouse_x: {_mouse_pos_block.x:.3f} ({_mouse_pos_block_rounded[0]})",
-                           f"mouse_y: {_mouse_pos_block.y:.3f} ({_mouse_pos_block_rounded[1]})",
+                           f"mouse_x: {_mouse_pos_rel.x:.3f} ({_block_pos[0]})",
+                           f"mouse_y: {_mouse_pos_rel.y:.3f} ({_block_pos[1]})",
                            f"player_grounded: {player.is_grounded}"]
             # iterate through each debug string, create a text surface, and blit them from top to bottom
             surface.blits([(create_text_surface(_debug_info[i], COLOR_FONT_DEBUG), (UI_SPACER, ((FONT_SIZE + UI_SPACER) * i) + UI_SPACER)) for i in range(len(_debug_info))])
