@@ -15,15 +15,15 @@ def main():
 
     # constants
     TITLE = "Minicraft"
-    SURFACE_SIZE = (800, 600)
-    FPS = 60
+    SURFACE_SIZE = (1280, 720)
+    FPS = 30
     COLOR_BG = Color(128, 128, 128)
     COLOR_FONT_DEBUG = Color(0, 0, 0)
     COLOR_FONT_UI = Color(255, 255, 255)
     UI_SPACER = 5
     FONT_SIZE = 16
     BLOCK_SCALE = 25
-    BLOCK_SCALE_MIN = 1
+    BLOCK_SCALE_MIN = 10
     WORLD_SIZE = (256, 256)
     GRAVITY = 10.0
 
@@ -245,17 +245,17 @@ def main():
         if debug:
             # draw debug info
             _debug_info = [f"surface_size: {display.surface_size.x}x{display.surface_size.y}",
-                        f"world_size: {world.width}x{world.height} ({world.width * world.height})",
-                        f"world_ticks: {world.ticks} ({world.updates_per_second}/tick)",
-                        f"world_time: {(world.ticks / world.updates_per_second):.3f}",
-                        f"show_grid: {display.show_grid}",
-                        f"fps: {display.clock.get_fps():.3f}",
-                        f"x: {player.pos.x:.3f}",
-                        f"y: {player.pos.y:.3f}",
-                        f"block_scale: {display.block_scale}",
-                        f"mouse_x: {_mouse_pos_block.x:.3f} ({_mouse_pos_block_rounded[0]})",
-                        f"mouse_y: {_mouse_pos_block.y:.3f} ({_mouse_pos_block_rounded[1]})",
-                        f"player_grounded: {player.is_grounded}"]
+                           f"world_size: {world.width}x{world.height} ({world.width * world.height})",
+                           f"world_ticks: {world.ticks} ({world.updates_per_second}/tick)",
+                           f"world_time: {(world.ticks / world.updates_per_second):.3f}",
+                           f"show_grid: {display.show_grid}",
+                           f"fps: {display.clock.get_fps():.3f}",
+                           f"x: {player.pos.x:.3f}",
+                           f"y: {player.pos.y:.3f}",
+                           f"block_scale: {display.block_scale}",
+                           f"mouse_x: {_mouse_pos_block.x:.3f} ({_mouse_pos_block_rounded[0]})",
+                           f"mouse_y: {_mouse_pos_block.y:.3f} ({_mouse_pos_block_rounded[1]})",
+                           f"player_grounded: {player.is_grounded}"]
             surface.blits([(create_text_surface(_debug_info[i], COLOR_FONT_DEBUG), (UI_SPACER, ((FONT_SIZE + UI_SPACER) * i) + UI_SPACER)) for i in range(len(_debug_info))])
             del _mouse_pos, _mouse_pos_block, _mouse_pos_block_rounded, _debug_info
 

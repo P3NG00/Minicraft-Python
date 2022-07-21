@@ -40,6 +40,7 @@ class World:
     def draw(self, display, player):
         """draws all world blocks to the display surface"""
         _draw_scale = Vec(display.block_scale - 1 if display.show_grid else display.block_scale)
+        # find edge to start drawing
         _visual_width = math.ceil(display.surface_size.x / display.block_scale) + 2
         _visual_height = math.ceil(display.surface_size.y / display.block_scale) + 2
         _visual_start_x = math.floor(player.pos.x - (_visual_width / 2.0))
@@ -55,6 +56,7 @@ class World:
             _visual_width = self.width - _visual_start_x - 1
         if _visual_height >= self.height - _visual_start_y:
             _visual_height = self.height - _visual_start_y - 1
+        # draw each visible block
         for y in range(_visual_height):
             for x in range(_visual_width):
                 _x = x + _visual_start_x
