@@ -36,12 +36,17 @@ class World:
             _rand_pos = (random.randrange(0, self.width), random.randrange(0, self.height))
             self.get_block(_rand_pos[0], _rand_pos[1]).update(_rand_pos, self, blocks)
 
-    def draw(self, display):
+    def draw(self, display, player):
         """draws all world blocks to the display surface"""
         _draw_scale = Vec(display.block_scale - 1 if display.show_grid else display.block_scale)
-        # TODO make start/end only on screen
-        for y in range(self.height):
-            for x in range(self.width):
-                _draw_pos = -display.camera_offset + Vec(x * display.block_scale,
-                                                  (-y - 1) * display.block_scale)
-                pygame.draw.rect(display.surface, self.get_block(x, y).color, (_draw_pos, _draw_scale))
+        _visual_width = int(display.surface_size.x / display.block_scale)
+        _visual_height = int(display.surface_size.y / display.block_scale)
+        _visual_start_x = int(player.pos.x - (_visual_width / 2))
+        _visual_start_y = int(player.pos.y - (_visual_height / 2))
+        for y in range(_visual_height):
+            for x in range(_visual_width):
+                _x = x + _visual_start_x
+                _y = y + _visual_start_y
+                _draw_pos = -display.camera_offset + Vec((_x) * display.block_scale,
+                                                    (-1 - _y) * display.block_scale)
+                pygame.draw.rect(display.surface, self.get_block(_x, _y).color, (_draw_pos, _draw_scale))

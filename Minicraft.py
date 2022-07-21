@@ -16,7 +16,7 @@ def main():
     # constants
     TITLE = "Minicraft"
     SURFACE_SIZE = (800, 600)
-    FPS = 30
+    FPS = 60
     COLOR_BG = Color(128, 128, 128)
     COLOR_FONT_DEBUG = Color(0, 0, 0)
     COLOR_FONT_UI = Color(255, 255, 255)
@@ -40,12 +40,11 @@ def main():
     input_mouse_right_last = False
 
     # init
-    CLOCK = pygame.time.Clock()
     pygame.init()
     pygame.display.set_caption(TITLE)
     surface = pygame.display.set_mode(SURFACE_SIZE, pygame.RESIZABLE)
     display = data.display.Display(surface, BLOCK_SCALE, FPS)
-    player._pos = Vec(WORLD_SIZE) / 2
+    player.pos = Vec(WORLD_SIZE) / 2
     blocks = data.block.Blocks()
     current_block = blocks.Dirt
 
@@ -66,7 +65,7 @@ def main():
                 _block_layer.append(blocks.Stone)
         _blocks.append(_block_layer)
     world = data.world.World(_blocks, GRAVITY)
-    del _blocks, _dirt_level, _block_layer, y, x
+    del _blocks, _dirt_level, _stone_level, _block_layer, y, x
 
     # font
     font = pygame.font.Font("data/font/type_writer.ttf", FONT_SIZE)
@@ -209,11 +208,11 @@ def main():
         # update world
         world.update(display, blocks)
         # update display handler
-        display.update(player._pos)
+        display.update(player)
         # get block position from mouse
         _mouse_pos = Vec(pygame.mouse.get_pos())
         _mouse_pos.y = display.surface_size.y - _mouse_pos.y - 1
-        _mouse_pos_block = ((_mouse_pos - display.surface_center) / display.block_scale) + player._pos
+        _mouse_pos_block = ((_mouse_pos - display.surface_center) / display.block_scale) + player.pos
         _mouse_pos_block_rounded = (int(_mouse_pos_block.x), int(_mouse_pos_block.y))
         # catch out of bounds
         try:
@@ -237,7 +236,7 @@ def main():
         # fill background
         surface.fill(COLOR_BG)
         # draw world
-        world.draw(display)
+        world.draw(display, player)
         # draw player
         player.draw(display)
         # draw current selected block name
@@ -250,13 +249,13 @@ def main():
                         f"world_ticks: {world.ticks} ({world.updates_per_second}/tick)",
                         f"world_time: {(world.ticks / world.updates_per_second):.3f}",
                         f"show_grid: {display.show_grid}",
-                        f"fps: {CLOCK.get_fps():.3f}",
-                        f"x: {player._pos.x:.3f}",
-                        f"y: {player._pos.y:.3f}",
+                        f"fps: {display.clock.get_fps():.3f}",
+                        f"x: {player.pos.x:.3f}",
+                        f"y: {player.pos.y:.3f}",
                         f"block_scale: {display.block_scale}",
                         f"mouse_x: {_mouse_pos_block.x:.3f} ({_mouse_pos_block_rounded[0]})",
                         f"mouse_y: {_mouse_pos_block.y:.3f} ({_mouse_pos_block_rounded[1]})",
-                        f"player_grounded: {player._grounded}"]
+                        f"player_grounded: {player.is_grounded}"]
             surface.blits([(create_text_surface(_debug_info[i], COLOR_FONT_DEBUG), (UI_SPACER, ((FONT_SIZE + UI_SPACER) * i) + UI_SPACER)) for i in range(len(_debug_info))])
             del _mouse_pos, _mouse_pos_block, _mouse_pos_block_rounded, _debug_info
 
@@ -264,7 +263,7 @@ def main():
         # update display
         pygame.display.flip()
         # framerate tick
-        CLOCK.tick(display.fps)
+        display.clock.tick(display.fps)
 
         # loop end, loop again if running is True
 
