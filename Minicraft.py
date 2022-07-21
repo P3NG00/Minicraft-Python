@@ -5,17 +5,17 @@ import data.world
 import pygame
 import random
 
-Color = pygame.Color
-Surface = pygame.Surface
-Vec = pygame.Vector2
-
 
 # main
 def main():
 
+    Color = pygame.Color
+    Surface = pygame.Surface
+    Vec = pygame.Vector2
+
     # constants
     TITLE = "Minicraft"
-    SURFACE_SIZE = (1280, 720)
+    SURFACE_SIZE = (800, 600)
     FPS = 60
     COLOR_BG = Color(128, 128, 128)
     COLOR_FONT_DEBUG = Color(0, 0, 0)
@@ -81,13 +81,19 @@ def main():
     # main game loop
     while running:
 
-        # run update appropriate amount of times
+        # add delta time
         display.tick_delta += display.delta_time()
 
+        # update for every tick step
         while display.tick_delta >= display.tick_step:
 
+            # decrement delta time by tick step
             display.tick_delta -= display.tick_step
+            # increment total tick counter
             display.ticks += 1
+
+
+            # update
 
             # handle events
             for event in pygame.event.get():
@@ -211,9 +217,6 @@ def main():
 
             # event handling end
 
-
-            # update
-
             # update player with input
             player.handle_input(input_move, input_jump)
             # update entities
@@ -270,6 +273,7 @@ def main():
                            f"mouse_x: {_mouse_pos_block.x:.3f} ({_mouse_pos_block_rounded[0]})",
                            f"mouse_y: {_mouse_pos_block.y:.3f} ({_mouse_pos_block_rounded[1]})",
                            f"player_grounded: {player.is_grounded}"]
+            # iterate through each debug string, create a text surface, and blit them from top to bottom
             surface.blits([(create_text_surface(_debug_info[i], COLOR_FONT_DEBUG), (UI_SPACER, ((FONT_SIZE + UI_SPACER) * i) + UI_SPACER)) for i in range(len(_debug_info))])
 
 
@@ -277,12 +281,13 @@ def main():
         pygame.display.flip()
         # framerate tick
         display.clock.tick(display.fps)
+    # game loop end
 
-        # loop end, loop again if running is True
 
     # quit
     pygame.quit()
 
 
+# boilerplate
 if __name__ == "__main__":
     main()
