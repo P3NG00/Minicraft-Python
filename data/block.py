@@ -31,9 +31,8 @@ class BlockGrass(Block):
             _check_pos = (position[0] + _offset[0], position[1] + _offset[1])
             try:
                 _block = world.get_block(_check_pos[0], _check_pos[1])
-                if _block is blocks.Dirt:
-                    if _check_pos[1] + 1 == world.height or world.get_block(_check_pos[0], _check_pos[1] + 1).is_air:
-                        world.set_block(_check_pos[0], _check_pos[1], blocks.Grass)
+                if _block is blocks.Dirt and (_check_pos[1] + 1 == world.height or world.get_block(_check_pos[0], _check_pos[1] + 1).is_air):
+                    world.set_block(_check_pos[0], _check_pos[1], blocks.Grass)
             except IndexError:
                 pass
         else:

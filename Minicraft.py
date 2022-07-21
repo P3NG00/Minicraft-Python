@@ -1,17 +1,17 @@
-import data.block
-import data.display
-import data.entity
-import data.world
-import pygame
-import random
-
-
 # main
 def main():
+
+    import data.block
+    import data.display
+    import data.entity
+    import data.world
+    import pygame
+    import random
 
     Color = pygame.Color
     Surface = pygame.Surface
     Vec = pygame.Vector2
+
 
     # constants
     TITLE = "Minicraft"
