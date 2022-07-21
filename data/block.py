@@ -21,15 +21,13 @@ class BlockGrass(Block):
 
     def __init__(self):
         super().__init__("Grass", Color(32, 255, 16))
-        self._offsets = [(-1,  1), (1,  1),
-                         (-1,  0), (1,  0),
-                         (-1, -1), (1, -1)]
+        self._spread_offsets = [(x, y - 1) for y in range(3) for x in [-1, 1]]
 
     def update(self, position: tuple[int, int], world, blocks):
         # if able to spread
         if position[1] + 1 == world.height or world.get_block(position[0], position[1] + 1).is_air:
             # check blocks to spread to
-            _offset = self._offsets[random.randrange(0, len(self._offsets))]
+            _offset = self._spread_offsets[random.randrange(0, len(self._spread_offsets))]
             _check_pos = (position[0] + _offset[0], position[1] + _offset[1])
             try:
                 _block = world.get_block(_check_pos[0], _check_pos[1])
