@@ -65,7 +65,7 @@ class World:
         # create world of air blocks for modification
         world = World([[Blocks.Air for _ in range(world_size[0])] for _ in range(world_size[1])], gravity, block_updates_per_tick)
         # create height map
-        _chunk_width = 32
+        _chunk_width = 16
         _rel_width = int(world.width / _chunk_width)
         _mid_height = int(world.height / 2)
         _height_variation = 32
@@ -76,14 +76,15 @@ class World:
                 _heightmap.append(_height)
         del _chunk_width, _rel_width, _mid_height, _height_variation, _height, _
         # smooth height map
-        _scan_radius = 16
+        _scan_radius = 32
         _heightmap_smooth = []
         _current_heights = []
+        _third_height = int(world.height / 3)
         for x in range(world.width):
+            # get average height of surrounding area
             for scan_x in range(-_scan_radius, _scan_radius):
                 _x = x + scan_x
-                if _x >= 0 and _x < world.width:
-                    _current_heights.append(_heightmap[_x])
+                _current_heights.append(_heightmap[_x] if _x >= 0 and _x < world.width else _third_height)
             _heightmap_smooth.append(round(sum(_current_heights) / len(_current_heights)))
             _current_heights.clear()
         del _scan_radius, _current_heights, x, scan_x, _x
