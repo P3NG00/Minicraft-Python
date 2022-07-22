@@ -98,9 +98,9 @@ class World:
         del _scan_radius, _current_heights, x, scan_x, _x
         # place blocks using smoothed height map
         for x in range(world.width):
+            _height_max = _heightmap_smooth[x] - 1
             for y in range(_heightmap_smooth[x]):
                 _block = data.block.Blocks.Dirt
-                _height_max = _heightmap_smooth[x] - 1
                 if y == _height_max:
                     _block = data.block.Blocks.Grass
                 elif y < _height_max - 32:
