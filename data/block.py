@@ -13,7 +13,7 @@ class Block:
         self.color = color
         self.is_air = is_air
 
-    def update(self, position: tuple[int, int], world, blocks):
+    def update(self, position: tuple[int, int], world):
         pass
 
 # grass block class
@@ -21,9 +21,9 @@ class BlockGrass(Block):
 
     def __init__(self):
         super().__init__("Grass", Color(32, 255, 16))
-        self._spread_offsets = [(x, y - 1) for y in range(3) for x in [-1, 1]]
+        self._spread_offsets = [(x, y) for y in [-1, 0, 1] for x in [-1, 1]]
 
-    def update(self, position: tuple[int, int], world, blocks):
+    def update(self, position: tuple[int, int], world):
         # if able to spread
         if position[1] + 1 == world.height or world.get_block(position[0], position[1] + 1).is_air:
             # check blocks to spread to
@@ -31,18 +31,17 @@ class BlockGrass(Block):
             _check_pos = (position[0] + _offset[0], position[1] + _offset[1])
             try:
                 _block = world.get_block(_check_pos[0], _check_pos[1])
-                if _block is blocks.Dirt and (_check_pos[1] + 1 == world.height or world.get_block(_check_pos[0], _check_pos[1] + 1).is_air):
-                    world.set_block(_check_pos[0], _check_pos[1], blocks.Grass)
+                if _block is Blocks.Dirt and (_check_pos[1] + 1 == world.height or world.get_block(_check_pos[0], _check_pos[1] + 1).is_air):
+                    world.set_block(_check_pos[0], _check_pos[1], Blocks.Grass)
             except IndexError:
                 pass
         else:
-            world.set_block(position[0], position[1], blocks.Dirt)
+            world.set_block(position[0], position[1], Blocks.Dirt)
 
 # blocks class
 class Blocks:
 
-    def __init__(self):
-        self.Air = Block("Air", Color(240, 255, 255), True)
-        self.Dirt = Block("Dirt", Color(96, 48, 0))
-        self.Grass = BlockGrass()
-        self.Stone = Block("Stone", Color(192, 192, 192))
+    Air = Block("Air", Color(240, 255, 255), True)
+    Dirt = Block("Dirt", Color(96, 48, 0))
+    Grass = BlockGrass()
+    Stone = Block("Stone", Color(192, 192, 192))

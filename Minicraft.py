@@ -6,7 +6,8 @@ def main():
     import data.entity
     import data.world
     import pygame
-    import random
+
+    Blocks = data.block.Blocks
 
     Color = pygame.Color
     Vec = pygame.Vector2
@@ -46,28 +47,11 @@ def main():
     pygame.display.set_caption(TITLE)
     surface = pygame.display.set_mode(SURFACE_SIZE, pygame.RESIZABLE)
     display = data.display.Display(surface, BLOCK_SCALE, FRAMES_PER_SECOND, TICKS_PER_SECOND)
+    world = data.world.World.generate_world(WORLD_SIZE, GRAVITY, int(((WORLD_SIZE[0] * WORLD_SIZE[1]) * WORLD_UPDATED_PER_SECOND) / display.tps))
+    _player_x = int(world.width / 2.0)
     player.pos = Vec(WORLD_SIZE) / 2
-    blocks = data.block.Blocks()
-    current_block = blocks.Dirt
-
-    # default world generation
-    _blocks = []
-    _dirt_level = int(WORLD_SIZE[1] / 2) - 1
-    _stone_level = int(WORLD_SIZE[1] / 3)
-    for y in range(WORLD_SIZE[1]):
-        _block_layer = []
-        for x in range(WORLD_SIZE[0]):
-            if y > _dirt_level:
-                _block_layer.append(blocks.Air)
-            elif y == _dirt_level:
-                _block_layer.append(blocks.Grass if random.random() < 0.8 else blocks.Dirt)
-            elif y > _stone_level:
-                _block_layer.append(blocks.Dirt)
-            else:
-                _block_layer.append(blocks.Stone)
-        _blocks.append(_block_layer)
-    world = data.world.World(_blocks, GRAVITY, int(((WORLD_SIZE[0] * WORLD_SIZE[1]) * WORLD_UPDATED_PER_SECOND) / display.tps))
-    del _blocks, _dirt_level, _stone_level, _block_layer, y, x
+    del _player_x
+    current_block = Blocks.Dirt
 
     # font
     font = pygame.font.Font("data/font/type_writer.ttf", FONT_SIZE)
@@ -138,11 +122,11 @@ def main():
 
                             # key press block selection
                             case pygame.K_1:
-                                current_block = blocks.Dirt
+                                current_block = Blocks.Dirt
                             case pygame.K_2:
-                                current_block = blocks.Grass
+                                current_block = Blocks.Grass
                             case pygame.K_3:
-                                current_block = blocks.Stone
+                                current_block = Blocks.Stone
 
                             # key press movement
                             case pygame.K_w:
@@ -223,7 +207,7 @@ def main():
             # update entities
             player.update(display, world)
             # update world
-            world.update(blocks)
+            world.update()
             # update display handler
             display.update(player)
             # get block position from mouse
@@ -237,7 +221,7 @@ def main():
                 # if left click
                 if input_mouse_left and not input_mouse_left_last:
                     # replace block with air
-                    world.set_block(_block_pos[0], _block_pos[1], blocks.Air)
+                    world.set_block(_block_pos[0], _block_pos[1], Blocks.Air)
                 # if right click
                 if input_mouse_right and not input_mouse_right_last:
                     # replace block with current block

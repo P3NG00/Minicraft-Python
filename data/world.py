@@ -1,6 +1,9 @@
+import data.block
 import math
 import pygame
 import random
+
+Blocks = data.block.Blocks
 
 Vec = pygame.Vector2
 
@@ -23,11 +26,11 @@ class World:
         """updates the block value of a position"""
         self.block_grid[y][x] = block
 
-    def update(self, blocks):
+    def update(self):
         """updates the world"""
         for _ in range(self.block_updates_per_tick):
             _rand_pos = (random.randrange(0, self.width), random.randrange(0, self.height))
-            self.get_block(_rand_pos[0], _rand_pos[1]).update(_rand_pos, self, blocks)
+            self.get_block(_rand_pos[0], _rand_pos[1]).update(_rand_pos, self)
 
     def draw(self, display, player):
         """draws all world blocks to the display surface"""
@@ -56,3 +59,44 @@ class World:
                 _draw_pos = -display.camera_offset + Vec((_x) * display.block_scale,
                                                     (-1 - _y) * display.block_scale)
                 pygame.draw.rect(display.surface, self.get_block(_x, _y).color, (_draw_pos, _draw_scale))
+
+    def generate_world(world_size: tuple[int, int], gravity: float, block_updates_per_tick: int):
+        # TODO adjust _chunk_width, _height_variation, and _scan_radius variables for different effects
+        # create world of air blocks for modification
+        world = World([[Blocks.Air for _ in range(world_size[0])] for _ in range(world_size[1])], gravity, block_updates_per_tick)
+        # create height map
+        _chunk_width = 32
+        _rel_width = int(world.width / _chunk_width)
+        _mid_height = int(world.height / 2)
+        _height_variation = 32
+        _heightmap = []
+        for _ in range(_rel_width):
+            _height = _mid_height + random.randrange(-_height_variation, _height_variation)
+            for _ in range(_chunk_width):
+                _heightmap.append(_height)
+        del _chunk_width, _rel_width, _mid_height, _height_variation, _height, _
+        # smooth height map
+        _scan_radius = 16
+        _heightmap_smooth = []
+        _current_heights = []
+        for x in range(world.width):
+            for scan_x in range(-_scan_radius, _scan_radius):
+                _x = x + scan_x
+                if _x >= 0 and _x < world.width:
+                    _current_heights.append(_heightmap[_x])
+            _heightmap_smooth.append(round(sum(_current_heights) / len(_current_heights)))
+            _current_heights.clear()
+        del _scan_radius, _current_heights, x, scan_x, _x
+        # place blocks using height map
+        for x in range(world.width):
+            for y in range(_heightmap_smooth[x]):
+                _block = Blocks.Dirt
+                _height_max = _heightmap_smooth[x] - 1
+                if y == _height_max:
+                    _block = Blocks.Grass
+                elif y < _height_max - 32:
+                    _block = Blocks.Stone
+                world.set_block(x, y, _block)
+        del _block, _height_max, x, y
+        # return generated world
+        return world
