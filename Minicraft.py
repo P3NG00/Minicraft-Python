@@ -9,7 +9,6 @@ def main():
     import random
 
     Color = pygame.Color
-    Surface = pygame.Surface
     Vec = pygame.Vector2
 
 
@@ -73,7 +72,7 @@ def main():
     # font
     font = pygame.font.Font("data/font/type_writer.ttf", FONT_SIZE)
 
-    def create_text_surface(text: str, color: Color) -> Surface:
+    def create_text_surface(text: str, color: Color) -> pygame.Surface:
         """returns a surface using the text and color"""
         return font.render(text, False, color)
 
@@ -277,8 +276,6 @@ def main():
                            f"player_grounded: {player.is_grounded}"]
             # iterate through each debug string, create a text surface, and blit them from top to bottom
             surface.blits([(create_text_surface(_debug_info[i], COLOR_FONT_DEBUG), (UI_SPACER, ((FONT_SIZE + UI_SPACER) * i) + UI_SPACER)) for i in range(len(_debug_info))])
-
-
         # update display
         pygame.display.flip()
         # framerate tick
