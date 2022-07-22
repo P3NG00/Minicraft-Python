@@ -48,8 +48,8 @@ def main():
     surface = pygame.display.set_mode(SURFACE_SIZE, pygame.RESIZABLE)
     display = data.display.Display(surface, BLOCK_SCALE, FRAMES_PER_SECOND, TICKS_PER_SECOND)
     world = data.world.World.generate_world(WORLD_SIZE, GRAVITY, int(((WORLD_SIZE[0] * WORLD_SIZE[1]) * WORLD_UPDATED_PER_SECOND) / display.tps))
-    _player_x = int(world.width / 2.0)
-    player.pos = Vec(WORLD_SIZE) / 2
+    _player_x = world.width / 2.0
+    player.pos = Vec(_player_x, world.get_top(int(_player_x))[1]) + Vec(0.5)
     del _player_x
     current_block = Blocks.Dirt
 
@@ -215,6 +215,7 @@ def main():
             _mouse_pos.y = display.surface_size.y - _mouse_pos.y - 1
             _mouse_pos_rel = ((_mouse_pos - display.surface_center) / display.block_scale) + player.pos
             _block_pos = (int(_mouse_pos_rel.x), int(_mouse_pos_rel.y))
+            del _mouse_pos
             # catch out of bounds
             if _block_pos[0] >= 0 and _block_pos[0] < world.width and \
                _block_pos[1] >= 0 and _block_pos[1] < world.height:
@@ -260,6 +261,7 @@ def main():
                            f"player_grounded: {player.is_grounded}"]
             # iterate through each debug string, create a text surface, and blit them from top to bottom
             surface.blits([(create_text_surface(_debug_info[i], COLOR_FONT_DEBUG), (UI_SPACER, ((FONT_SIZE + UI_SPACER) * i) + UI_SPACER)) for i in range(len(_debug_info))])
+            del _mouse_pos_rel, _block_pos, _debug_info
         # update display
         pygame.display.flip()
         # framerate tick

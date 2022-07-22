@@ -5,10 +5,10 @@ Color = pygame.Color
 Vec = pygame.Vector2
 
 
-# class
+# entity class
 class Entity:
 
-    def __init__(self, color: Color, dimensions: Vec, move_speed: float, jump_velocity: float):
+    def __init__(self, color: 'Color', dimensions: 'Vec', move_speed: float, jump_velocity: float):
         self.color = color
         self.dimensions = dimensions
         self.speed = move_speed
@@ -17,7 +17,7 @@ class Entity:
         self.velocity = Vec(0)
         self.is_grounded = False
 
-    def draw(self, display):
+    def draw(self, display: 'data.display.Display'):
         """uses the current camera offset and block scale to draw the entity to the surface"""
         # get current screen size of player
         _current_size = self.dimensions * display.block_scale
@@ -34,8 +34,9 @@ class Entity:
         _draw_pos.y = math.ceil(_draw_pos.y)
         # draw to surface
         pygame.draw.rect(display.surface, self.color, (_draw_pos, _current_size))
+        del _current_size, _draw_offset, _rel_pos, _draw_pos
 
-    def update(self, display, world):
+    def update(self, display: 'data.display.Display', world: 'data.world.World'):
         """updates the entity"""
         # add movement this tick
         self.pos += (self.velocity * display.tick_step) * self.speed
@@ -48,12 +49,13 @@ class Entity:
             self.pos.y = math.ceil(self.pos.y)
             self.velocity.y = 0
             self.is_grounded = True
+        del _block_pos
         # add velocity if falling
         if not self.is_grounded:
             self.velocity.y -= world.gravity * display.tick_step
         # TODO take into account wall tiles
 
-    def handle_input(self, movement: Vec, jump: bool):
+    def handle_input(self, movement: 'Vec', jump: bool):
         """uses the given variables to calculate movement"""
         # set horizontal movement
         self.velocity.x = movement.x
@@ -61,3 +63,7 @@ class Entity:
         if jump and self.velocity.y == 0:
             self.velocity.y = self.jump_velocity
             self.is_grounded = False
+
+
+import data.display
+import data.world

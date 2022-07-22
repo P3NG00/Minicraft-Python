@@ -1,13 +1,11 @@
-import data.block
 import math
 import pygame
 import random
 
-Blocks = data.block.Blocks
-
 Vec = pygame.Vector2
 
 
+# world class
 class World:
     """holds block information"""
 
@@ -18,21 +16,30 @@ class World:
         self.gravity = gravity
         self.block_updates_per_tick = block_updates_per_tick
 
-    def get_block(self, x: int, y: int):
+    def get_block(self, x: int, y: int) -> 'data.block.Block':
         """returns the block at the specified position"""
         return self.block_grid[y][x]
 
-    def set_block(self, x: int, y: int, block):
+    def set_block(self, x: int, y: int, block: 'data.block.Block'):
         """updates the block value of a position"""
         self.block_grid[y][x] = block
+
+    def get_top(self, x: int) -> tuple['data.block.Block', int]:
+        """returns the block and y position of the top-most non-air block"""
+        for y in range(self.height - 1, -1, -1):
+            _block = self.get_block(x, y)
+            if not _block.is_air:
+                return (_block, y)
+        return (None, 0)
 
     def update(self):
         """updates the world"""
         for _ in range(self.block_updates_per_tick):
             _rand_pos = (random.randrange(0, self.width), random.randrange(0, self.height))
             self.get_block(_rand_pos[0], _rand_pos[1]).update(_rand_pos, self)
+        del _rand_pos, _
 
-    def draw(self, display, player):
+    def draw(self, display: 'data.display.Display', player: 'data.entity.Entity'):
         """draws all world blocks to the display surface"""
         _draw_scale = Vec(display.block_scale - 1 if display.show_grid else display.block_scale)
         # find edge to start drawing
@@ -59,11 +66,12 @@ class World:
                 _draw_pos = -display.camera_offset + Vec((_x) * display.block_scale,
                                                     (-1 - _y) * display.block_scale)
                 pygame.draw.rect(display.surface, self.get_block(_x, _y).color, (_draw_pos, _draw_scale))
+        del _draw_scale, _visual_width, _visual_height, _visual_start_x, _visual_start_y, _x, _y, x, y, _draw_pos
 
     def generate_world(world_size: tuple[int, int], gravity: float, block_updates_per_tick: int):
         # TODO adjust _chunk_width, _height_variation, and _scan_radius variables for different effects
         # create world of air blocks for modification
-        world = World([[Blocks.Air for _ in range(world_size[0])] for _ in range(world_size[1])], gravity, block_updates_per_tick)
+        world = World([[data.block.Blocks.Air for _ in range(world_size[0])] for _ in range(world_size[1])], gravity, block_updates_per_tick)
         # create height map
         _chunk_width = 16
         _rel_width = int(world.width / _chunk_width)
@@ -88,16 +96,21 @@ class World:
             _heightmap_smooth.append(round(sum(_current_heights) / len(_current_heights)))
             _current_heights.clear()
         del _scan_radius, _current_heights, x, scan_x, _x
-        # place blocks using height map
+        # place blocks using smoothed height map
         for x in range(world.width):
             for y in range(_heightmap_smooth[x]):
-                _block = Blocks.Dirt
+                _block = data.block.Blocks.Dirt
                 _height_max = _heightmap_smooth[x] - 1
                 if y == _height_max:
-                    _block = Blocks.Grass
+                    _block = data.block.Blocks.Grass
                 elif y < _height_max - 32:
-                    _block = Blocks.Stone
+                    _block = data.block.Blocks.Stone
                 world.set_block(x, y, _block)
         del _block, _height_max, x, y
         # return generated world
         return world
+
+
+import data.block
+import data.entity
+import data.display
